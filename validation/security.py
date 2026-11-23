@@ -76,11 +76,15 @@ class PairingRegistry:
             raise PairingError("配对码已过期")
         if not hmac.compare_digest(self._code_hash, self._hash(code)):
             raise PairingError("配对码错误")
-        identity = fingerprint(peer_certificate)
-        self.allowed.add(identity)
+        identity = self.register(peer_certificate)
         self._salt = b""
         self._code_hash = b""
         self._expires = 0.0
+        return identity
+
+    def register(self, peer_certificate: bytes) -> str:
+        identity = fingerprint(peer_certificate)
+        self.allowed.add(identity)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps({"allowed": sorted(self.allowed)}), encoding="utf-8")
         return identity

@@ -38,7 +38,7 @@ def receive_exact(sock: socket.socket, size: int) -> bytes:
 
 def receive_json(sock: socket.socket) -> dict:
     size = struct.unpack("!I", receive_exact(sock, 4))[0]
-    if size > 64 * 1024:
+    if size > 16 * 1024 * 1024:
         raise ValueError("消息过大")
     return json.loads(receive_exact(sock, size).decode("utf-8"))
 

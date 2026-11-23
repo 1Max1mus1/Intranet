@@ -16,6 +16,19 @@ Do not edit by hand; regenerate from validation Python sources.
 - `create_corpusroot: Path, large_size: int=128 * 1024 * 1024, small_files: int=200`
 - `main`
 
+## `validation/dual_node.py`
+
+- `pair_authcode: str, *parts: str`
+- `validation_pathvalue: str`
+- class `NodeFiles`
+  - `__init__self, root: str, device: str, metadata: str | None`
+- `parse_peervalue: str`
+- `host_pairargs`
+- `join_pairargs`
+- `serve_filesfiles: NodeFiles`
+- `sync_filesfiles: NodeFiles, host: str, port: int`
+- `main`
+
 ## `validation/engine.py`
 
 - `hash_filepath: Path`
@@ -52,6 +65,26 @@ Do not edit by hand; regenerate from validation Python sources.
   - `_applyself, peer: SyncEngine, remote: Record, local: Record | None, stats: SyncStats, conflict: bool`
   - `restoreself, entry_id: str`
 
+## `validation/network.py`
+
+- class `SocketReader`
+  - `__init__self, peer: RemotePeer, size: int`
+  - `__enter__self`
+  - `__exit__self, exc_type, exc, traceback`
+  - `readself, size: int=-1`
+  - `closeself`
+- class `RemotePeer`
+  - `__init__self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path`
+  - `manifestself`
+  - `open_recordself, requested: Record`
+  - `closeself`
+- class `NodeServer`
+  - `__init__self, engine: SyncEngine, key_path: Path, certificate_path: Path, peer_certificate: Path, registry: PairingRegistry, host: str='0.0.0.0', port: int=47630`
+  - `startself`
+  - `_accept_loopself`
+  - `_handleself, raw: socket.socket`
+  - `closeself`
+
 ## `validation/run_checks.py`
 
 - `v1root: Path`
@@ -71,6 +104,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `issue_codeself, ttl_seconds: float=60`
   - `_hashself, code: str`
   - `pairself, code: str, peer_certificate: bytes`
+  - `registerself, peer_certificate: bytes`
   - `allowsself, certificate_pem: bytes`
 - class `NetworkPolicy`
   - `__init__self`
@@ -87,7 +121,7 @@ Do not edit by hand; regenerate from validation Python sources.
 - `receive_exactsock: socket.socket, size: int`
 - `receive_jsonsock: socket.socket`
 - class `ChunkServer`
-  - `__init__self, source: Path, corrupt: bool=False`
+  - `__init__self, source: Path, corrupt: bool=False, host: str='127.0.0.1', port: int=0`
   - `_runself`
   - `closeself`
 - class `ResumableDownloader`

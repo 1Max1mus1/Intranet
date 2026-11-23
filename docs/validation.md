@@ -63,6 +63,8 @@ python -m validation.run_checks
 
 结果写入 `docs/evidence/local-results.json`。这些命令只操作 `.validation-data` 和临时隔离目录；其中 V1/V2 为单进程双目录，V3/V5 为回环 TCP，不能替代下述双机门槛。
 
+双机 TLS 验证入口为 `validation/dual_node.py`。所有同步根目录和元数据都必须位于 `.validation-data`，且每次运行必须显式提供 `--trusted-network`。`host` 输出一次性配对码并启动 TLS 服务，`join --sync` 完成配对并拉取文件；`serve` 和 `sync` 用于已配对节点。该入口已在单机两个隔离节点之间通过真实配对、双向 TLS 和文件同步，但双机结果仍需单独记录。
+
 ## 第一阶段完成定义
 
 - 每项实验都有原始证据、环境、结果和继续/修订/停止结论。
