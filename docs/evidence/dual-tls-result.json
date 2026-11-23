@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-11-23",
+  "network": "Victor‘s iPhone 15",
+  "host": "172.20.10.11:47630",
+  "client": "Victor-Desktop",
+  "client_commit": "dd0aee2ff83a31da95383a34477f29d6b8504844",
+  "paired": true,
+  "mutual_tls": true,
+  "downloaded_files": 2,
+  "downloaded_bytes": 10485790,
+  "renames_without_download": 0,
+  "deletes": 0,
+  "conflicts": 0,
+  "history_entries": 0,
+  "errors": null,
+  "scope": "real two-computer pairing and TLS synchronization of two synthetic files; not a full V1-V4 acceptance run"
+}
