@@ -11,6 +11,9 @@
 @ref id=intranet-data-flow type=module state=draft path=architecture/data-flow.md
   Intranet 的数据从本地完整文件变化出发，经版本协调、加密分块传输和校验替换，在另一端形成文件或冲突与历史记录。
 
+@ref id=intranet-network-connectivity type=progress state=draft path=evidence/network-connectivity.md
+  CUHK1x 下双机 WLAN 的 Ping、SMB 和自定义 TCP 双向均失败，Tailscale 仅通过新加坡 DERP 以约 90ms 连通，当前网络不满足直接联测条件。
+
 @ref id=intranet-other-computer-preflight type=runbook state=draft path=prompts/other-computer-preflight.md
   给另一台 Windows 电脑 Agent 的完整隔离预验证 Prompt，包含仓库地址、代码前提、环境、命令、证据格式和安全边界。
 

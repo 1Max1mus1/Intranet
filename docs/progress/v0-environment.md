@@ -29,10 +29,26 @@
 
 `validation/corpus.py` 可重复生成文本、代码、有效 PNG、空文件、中文与长文件名、200 个小文件和确定性伪随机大文件。默认大文件为 128 MiB，不读取或复制真实工作目录。生成位置限定为 `.validation-data`，该目录已加入 `.gitignore`。
 
-## 尚待另一台电脑完成
+## 另一台电脑（Victor-Desktop）
 
-- Windows、CPU、内存、硬盘、网卡和实际连接方式。
-- 路由器、Wi-Fi 频段/有线速率、是否 AP 隔离和双 NAT。
+- 系统：Windows 11 专业版 10.0.26300，AMD64。
+- CPU：AMD Ryzen 7 9700X，16 逻辑处理器；内存 32 GiB。
+- 硬盘：Fanxiang S790 2TB NVMe，系统盘剩余约 160.40 GiB。
+- Python：3.11.15；验证依赖 cryptography 48.0.1。
+- 网络：Realtek 8922AE WiFi 7，CUHK1x，链路 1.2 Gbps，当前 WLAN IP 10.13.59.242，网关 10.13.63.254。
+- 虚拟接口：Tailscale、VirtualBox、Hyper-V/WSL、QuickFox TAP、TAP-Windows Adapter V9。
+- 同一 commit `37affde` 上 V1/V2/V3/V5 本机预验证通过，V4 仅为 informational。原始摘要见 `docs/evidence/desktop-local-results.json`。
+
+## 双机连通性结果
+
+双向 WLAN Ping、TCP 445 和台式端到本机临时 TCP 47630 均失败。台式端到本机 Tailscale 仅通过 DERP(sin) 收到 89–94 ms 的 pong，未建立直连；反向 Tailscale Ping 超时。临时监听器已关闭，未执行文件同步。
+
+当前 CUHK1x 不能直接用于双机验收。现象符合设备隔离或校园网路由限制，但不能仅凭这些结果确认具体机制。完整证据见 `docs/evidence/network-connectivity.md`。
+
+## 尚待完成
+
+- 两端切换到同一个用户可控的私有热点或家庭路由器，重新登记 IP 并验证双向 Ping 与 TCP。
+- 路由器、是否双 NAT 及可用测试网络确认。
 - 同一批大文件通过 Windows SMB 共享传输的吞吐基线，至少三轮记录原始结果。
 
-V0 尚不能整体判定通过；本机准备已完成，双机环境及 SMB 基线是剩余门槛。
+V0 尚不能整体判定通过；两台本机准备已完成，可用双机网络与 SMB 基线是剩余门槛。

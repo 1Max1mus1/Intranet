@@ -1,3 +1,3 @@
 @index scope=root generated=true
 
-@domain projects path=docs/INDEX.md pages=9 sources=0
+@domain projects path=docs/INDEX.md pages=10 sources=0
