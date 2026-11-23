@@ -65,6 +65,8 @@ python -m validation.run_checks
 
 双机 TLS 验证入口为 `validation/dual_node.py`。所有同步根目录和元数据都必须位于 `.validation-data`，且每次运行必须显式提供 `--trusted-network`。`host` 输出一次性配对码并启动 TLS 服务，`join --sync` 完成配对并拉取文件；`serve` 和 `sync` 用于已配对节点。该入口已在单机两个隔离节点之间通过真实配对、双向 TLS 和文件同步，但双机结果仍需单独记录。
 
+SMB 基线使用 `python -m validation.smb_baseline --source-dir "\\IP\IntranetValidation" --runs 3`。脚本只接收共享中的 `deterministic.bin`，目标固定为 `.validation-data/smb-copy`，每轮校验 SHA-256 并删除副本。共享必须只含合成文件且只读，测试后立即删除。
+
 ## 第一阶段完成定义
 
 - 每项实验都有原始证据、环境、结果和继续/修订/停止结论。

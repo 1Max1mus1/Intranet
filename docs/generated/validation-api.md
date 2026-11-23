@@ -113,6 +113,10 @@ Do not edit by hand; regenerate from validation Python sources.
 - `server_contextkey_path: Path, certificate_path: Path, peer_certificate: Path`
 - `client_contextkey_path: Path, certificate_path: Path, peer_certificate: Path`
 
+## `validation/smb_baseline.py`
+
+- `main`
+
 ## `validation/transport.py`
 
 - class `InjectedInterruption`
