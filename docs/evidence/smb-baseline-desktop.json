@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-11-23T16:16:18.416481+00:00",
+  "source_dir": "\\\\172.20.10.11\\IntranetValidation",
+  "file": "deterministic.bin",
+  "results": [
+    {"run": 1, "seconds": 10.680589500007045, "bytes": 134217728, "mbps": 100.5320749383067, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "hash_match": true},
+    {"run": 2, "seconds": 26.88996870000119, "bytes": 134217728, "mbps": 39.93094361615796, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "hash_match": true},
+    {"run": 3, "seconds": 34.74311680000392, "bytes": 134217728, "mbps": 30.905166919275327, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "hash_match": true}
+  ],
+  "median_mbps": 39.93094361615796,
+  "scope": "authenticated Windows SMB transfer of an isolated synthetic file; not an Intranet result",
+  "cleanup": "temporary SMB connection, local test account, shares, test directory and credential file removed"
+}
