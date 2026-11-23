@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-11-23",
+  "network": "Victor‘s iPhone 15",
+  "source": "172.20.10.11:51337",
+  "destination": "Victor-Desktop",
+  "seconds": 14.805647000001045,
+  "bytes": 134217728,
+  "mbps": 72.52245200766465,
+  "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef",
+  "expected_sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef",
+  "hash_match": true,
+  "errors": null,
+  "scope": "one short real two-computer TCP transfer of synthetic data; not TLS, SMB baseline, or full sync acceptance"
+}

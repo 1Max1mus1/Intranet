@@ -44,14 +44,14 @@ def receive_json(sock: socket.socket) -> dict:
 
 
 class ChunkServer:
-    def __init__(self, source: Path, corrupt: bool = False):
+    def __init__(self, source: Path, corrupt: bool = False, host: str = "127.0.0.1", port: int = 0):
         self.source = source
         self.size = source.stat().st_size
         self.sha256 = hash_file(source)
         self.corrupt = corrupt
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.listener.bind(("127.0.0.1", 0))
+        self.listener.bind((host, port))
         self.listener.listen()
         self.listener.settimeout(0.2)
         self.port = self.listener.getsockname()[1]
