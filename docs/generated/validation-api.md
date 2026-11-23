@@ -85,6 +85,10 @@ Do not edit by hand; regenerate from validation Python sources.
   - `_handleself, raw: socket.socket`
   - `closeself`
 
+## `validation/perf_sync.py`
+
+- `main`
+
 ## `validation/run_checks.py`
 
 - `v1root: Path`
