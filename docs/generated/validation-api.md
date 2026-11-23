@@ -1,0 +1,98 @@
+@wiki id=intranet-validation-api type=module domain=projects state=draft
+@summary Generated function and class inventory for the disposable Intranet validation modules.
+@terms Intranet, validation, generated API
+@links intranet-validation-plan
+
+# Generated Validation API
+
+Do not edit by hand; regenerate from validation Python sources.
+
+## `validation/__init__.py`
+
+
+## `validation/corpus.py`
+
+- `png_byteswidth: int=64, height: int=64`
+- `create_corpusroot: Path, large_size: int=128 * 1024 * 1024, small_files: int=200`
+- `main`
+
+## `validation/engine.py`
+
+- `hash_filepath: Path`
+- `safe_pathvalue: str`
+- class `Record`
+  - `orderself`
+  - `wireself`
+  - `from_wirecls, value: dict`
+  - `same_payloadself, other: Record`
+- class `SyncStats`
+  - `mergeself, other: SyncStats`
+- class `HistoryStore`
+  - `__init__self, root: Path, retention_days: int=30, max_bytes: int=20 * 1024 ** 3`
+  - `preserveself, source: Path, original_path: str, reason: str`
+  - `entriesself`
+  - `cleanupself, now_ns: int | None=None`
+  - `restoreself, entry_id: str, sync_root: Path`
+- class `SyncEngine`
+  - `__init__self, root: Path, device: str, metadata_root: Path, excluded: tuple[str, ...]=(), history_days: int=30, history_bytes: int=20 * 1024 ** 3`
+  - `_loadself`
+  - `_saveself`
+  - `is_excludedself, relative: str`
+  - `path_forself, relative: str`
+  - `_diskself`
+  - `_native_idstat: os.stat_result`
+  - `scanself`
+  - `manifestself`
+  - `_adoptself, remote: Record`
+  - `_preserve_historyself, path: Path, relative: str, reason: str`
+  - `_conflict_copyself, source: Path`
+  - `_download_fromself, peer: SyncEngine, remote: Record, temporary: Path`
+  - `open_recordself, requested: Record`
+  - `sync_fromself, peer: SyncEngine`
+  - `_applyself, peer: SyncEngine, remote: Record, local: Record | None, stats: SyncStats, conflict: bool`
+  - `restoreself, entry_id: str`
+
+## `validation/run_checks.py`
+
+- `v1root: Path`
+- `v2root: Path`
+- `v3root: Path`
+- `v4root: Path, corpus: Path`
+- `v5root: Path`
+- `main`
+
+## `validation/security.py`
+
+- class `PairingError`
+- `create_identityroot: Path, common_name: str`
+- `fingerprintcertificate_pem: bytes`
+- class `PairingRegistry`
+  - `__init__self, path: Path`
+  - `issue_codeself, ttl_seconds: float=60`
+  - `_hashself, code: str`
+  - `pairself, code: str, peer_certificate: bytes`
+  - `allowsself, certificate_pem: bytes`
+- class `NetworkPolicy`
+  - `__init__self`
+  - `trustself, network_id: str`
+  - `allows_syncself, network_id: str, peer_paired: bool`
+- `server_contextkey_path: Path, certificate_path: Path, peer_certificate: Path`
+- `client_contextkey_path: Path, certificate_path: Path, peer_certificate: Path`
+
+## `validation/transport.py`
+
+- class `InjectedInterruption`
+- `hash_filepath: Path`
+- `send_jsonsock: socket.socket, value: dict`
+- `receive_exactsock: socket.socket, size: int`
+- `receive_jsonsock: socket.socket`
+- class `ChunkServer`
+  - `__init__self, source: Path, corrupt: bool=False`
+  - `_runself`
+  - `closeself`
+- class `ResumableDownloader`
+  - `__init__self, host: str, port: int, destination: Path, state_root: Path, transfer_id: str`
+  - `_loadself`
+  - `_saveself, offset: int, total_size: int, sha256: str`
+  - `_chunkself, offset: int, length: int`
+  - `downloadself, chunk_size: int=1024 * 1024, interrupt_at: int | None=None, before_replace=None, after_replace=None`
