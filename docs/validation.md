@@ -67,6 +67,8 @@ python -m validation.run_checks
 
 SMB 基线使用 `python -m validation.smb_baseline --source-dir "\\IP\IntranetValidation" --runs 3`。脚本只接收共享中的 `deterministic.bin`，目标固定为 `.validation-data/smb-copy`，每轮校验 SHA-256 并删除副本。共享必须只含合成文件且只读，测试后立即删除。
 
+已配对节点可用 `validation/auto_node.py` 验证 UDP 自动发现、定时 TLS 同步和断线恢复。广播包含证书指纹，未配对设备会被忽略。`--watch <相对路径>` 输出文件到达事件；文件内容为 Unix 时间戳时同时输出估算延迟。自动模式仍只用于隔离验证，不是产品后台服务。
+
 ## 第一阶段完成定义
 
 - 每项实验都有原始证据、环境、结果和继续/修订/停止结论。

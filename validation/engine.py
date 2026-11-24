@@ -6,6 +6,7 @@ import os
 import shutil
 import time
 import uuid
+import threading
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
 from typing import BinaryIO
@@ -158,6 +159,7 @@ class SyncEngine:
         self.excluded = tuple(safe_path(item) for item in excluded)
         self.history = HistoryStore(self.metadata_root / "history", history_days, history_bytes)
         self.records: dict[str, Record] = {}
+        self.lock = threading.RLock()
         self._load()
 
     def _load(self) -> None:
@@ -210,6 +212,10 @@ class SyncEngine:
         return f"{stat.st_dev}:{stat.st_ino}"
 
     def scan(self) -> None:
+        with self.lock:
+            self._scan_unlocked()
+
+    def _scan_unlocked(self) -> None:
         self._load()
         disk = self._disk()
         previous = self.records
@@ -263,8 +269,9 @@ class SyncEngine:
         self._save()
 
     def manifest(self) -> list[dict]:
-        self.scan()
-        return [record.wire() for record in self.records.values()]
+        with self.lock:
+            self.scan()
+            return [record.wire() for record in self.records.values()]
 
     def _adopt(self, remote: Record) -> None:
         local = self.path_for(remote.path)
@@ -296,13 +303,18 @@ class SyncEngine:
         return current.size
 
     def open_record(self, requested: Record) -> tuple[BinaryIO, Record]:
-        self.scan()
-        current = self.records.get(requested.file_id)
-        if current is None or current.deleted or current.wire() != requested.wire():
-            raise FileNotFoundError("文件版本已变化")
-        return self.path_for(current.path).open("rb"), current
+        with self.lock:
+            self.scan()
+            current = self.records.get(requested.file_id)
+            if current is None or current.deleted or current.wire() != requested.wire():
+                raise FileNotFoundError("文件版本已变化")
+            return self.path_for(current.path).open("rb"), current
 
     def sync_from(self, peer: SyncEngine) -> SyncStats:
+        with self.lock:
+            return self._sync_from_unlocked(peer)
+
+    def _sync_from_unlocked(self, peer: SyncEngine) -> SyncStats:
         remote_records = [Record.from_wire(item) for item in peer.manifest()]
         self.scan()
         stats = SyncStats()

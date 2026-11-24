@@ -10,6 +10,24 @@ Do not edit by hand; regenerate from validation Python sources.
 ## `validation/__init__.py`
 
 
+## `validation/auto_node.py`
+
+- class `DiscoveredPeer`
+- class `DiscoveryService`
+  - `__init__self, device: str, tls_port: int, certificate, registry, listen_port: int, remote_port: int, broadcast_host: str`
+  - `startself`
+  - `_receive_loopself`
+  - `_announce_loopself`
+  - `current_peersself`
+  - `closeself`
+- class `AutoNode`
+  - `__init__self, files: NodeFiles, port: int, discovery_port: int, remote_discovery_port: int, broadcast: str, watch: list[str]`
+  - `emitself, kind: str, **values`
+  - `startself`
+  - `_sync_loopself`
+  - `closeself`
+- `main`
+
 ## `validation/corpus.py`
 
 - `png_byteswidth: int=64, height: int=64`
@@ -21,7 +39,7 @@ Do not edit by hand; regenerate from validation Python sources.
 - `pair_authcode: str, *parts: str`
 - `validation_pathvalue: str`
 - class `NodeFiles`
-  - `__init__self, root: str, device: str, metadata: str | None`
+  - `__init__self, root: str, device: str, metadata: str | None, excluded: tuple[str, ...]=()`
 - `parse_peervalue: str`
 - `host_pairargs`
 - `join_pairargs`
@@ -55,6 +73,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `_diskself`
   - `_native_idstat: os.stat_result`
   - `scanself`
+  - `_scan_unlockedself`
   - `manifestself`
   - `_adoptself, remote: Record`
   - `_preserve_historyself, path: Path, relative: str, reason: str`
@@ -62,6 +81,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `_download_fromself, peer: SyncEngine, remote: Record, temporary: Path`
   - `open_recordself, requested: Record`
   - `sync_fromself, peer: SyncEngine`
+  - `_sync_from_unlockedself, peer: SyncEngine`
   - `_applyself, peer: SyncEngine, remote: Record, local: Record | None, stats: SyncStats, conflict: bool`
   - `restoreself, entry_id: str`
 
