@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-11-24T09:59:55.390359+00:00",
+  "timestamp": "2026-11-24T10:10:45.123432+00:00",
   "scope": "single-machine preliminary validation; two-computer acceptance remains pending",
   "checks": {
     "v1": {
@@ -29,11 +29,11 @@
     "v4": {
       "status": "informational",
       "large_bytes": 134217728,
-      "sync_seconds": 0.6675953000085428,
-      "sync_mbps": 1608.3723537092906,
-      "local_copy_seconds": 0.12376560003031045,
-      "ratio_to_local_copy": 0.18539016081857781,
-      "small_file_seconds": 0.07436289999168366,
+      "sync_seconds": 0.7345808999962173,
+      "sync_mbps": 1461.7067010665935,
+      "local_copy_seconds": 0.15570589998969808,
+      "ratio_to_local_copy": 0.21196562555669482,
+      "small_file_seconds": 0.08852630003821105,
       "acceptance": "pending two physical computers and SMB baseline; these numbers are not V4 acceptance evidence"
     }
   }

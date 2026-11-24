@@ -161,6 +161,7 @@ class SyncEngine:
         self.history = HistoryStore(self.metadata_root / "history", history_days, history_bytes)
         self.records: dict[str, Record] = {}
         self.lock = threading.RLock()
+        self.sync_lock = threading.RLock()
         self._load()
 
     def _load(self) -> None:
@@ -275,13 +276,14 @@ class SyncEngine:
             return [record.wire() for record in self.records.values()]
 
     def _adopt(self, remote: Record) -> None:
-        local = self.path_for(remote.path)
-        native_id = ""
-        if local.exists() and not remote.deleted:
-            stat = local.stat()
-            native_id = self._native_id(stat)
-        self.records[remote.file_id] = Record(**remote.wire(), native_id=native_id)
-        self._save()
+        with self.lock:
+            local = self.path_for(remote.path)
+            native_id = ""
+            if local.exists() and not remote.deleted:
+                stat = local.stat()
+                native_id = self._native_id(stat)
+            self.records[remote.file_id] = Record(**remote.wire(), native_id=native_id)
+            self._save()
 
     def _preserve_history(self, path: Path, relative: str, reason: str) -> None:
         if path.exists():
@@ -322,7 +324,7 @@ class SyncEngine:
             return source, current
 
     def sync_from(self, peer: SyncEngine) -> SyncStats:
-        with self.lock:
+        with self.sync_lock:
             return self._sync_from_unlocked(peer)
 
     def _sync_from_unlocked(self, peer: SyncEngine) -> SyncStats:
