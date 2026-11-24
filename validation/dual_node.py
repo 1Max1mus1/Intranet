@@ -34,7 +34,7 @@ def validation_path(value: str) -> Path:
 
 
 class NodeFiles:
-    def __init__(self, root: str, device: str, metadata: str | None):
+    def __init__(self, root: str, device: str, metadata: str | None, excluded: tuple[str, ...] = ()):
         self.root = validation_path(root)
         self.metadata = validation_path(metadata) if metadata else self.root.parent / f"{self.root.name}-meta"
         self.identity = self.metadata / "identity"
@@ -44,7 +44,7 @@ class NodeFiles:
         self.registry = PairingRegistry(self.metadata / "paired.json")
         if not self.key.exists():
             create_identity(self.identity, device)
-        self.engine = SyncEngine(self.root, device, self.metadata / "engine")
+        self.engine = SyncEngine(self.root, device, self.metadata / "engine", excluded=excluded)
 
 
 def parse_peer(value: str) -> tuple[str, int]:
@@ -55,7 +55,7 @@ def parse_peer(value: str) -> tuple[str, int]:
 
 
 def host_pair(args) -> None:
-    files = NodeFiles(args.root, args.device, args.metadata)
+    files = NodeFiles(args.root, args.device, args.metadata, tuple(args.exclude))
     code = files.registry.issue_code(ttl_seconds=300)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -88,7 +88,7 @@ def host_pair(args) -> None:
 
 
 def join_pair(args) -> None:
-    files = NodeFiles(args.root, args.device, args.metadata)
+    files = NodeFiles(args.root, args.device, args.metadata, tuple(args.exclude))
     host, port = parse_peer(args.peer)
     nonce = hashlib.sha256(f"{time.time_ns()}:{args.device}".encode()).hexdigest()
     certificate = files.certificate.read_bytes()
@@ -162,6 +162,7 @@ def main() -> None:
     parser.add_argument("--code", help="一次性配对码，join 必需")
     parser.add_argument("--port", type=int, default=47630)
     parser.add_argument("--sync", action="store_true", help="join 配对后立即同步")
+    parser.add_argument("--exclude", action="append", default=[], help="本机排除的相对路径，可重复")
     parser.add_argument("--trusted-network", action="store_true", help="明确确认当前网络受信任")
     args = parser.parse_args()
     if not args.trusted_network:
@@ -176,10 +177,10 @@ def main() -> None:
     elif args.command == "join":
         join_pair(args)
     elif args.command == "serve":
-        serve_files(NodeFiles(args.root, args.device, args.metadata))
+        serve_files(NodeFiles(args.root, args.device, args.metadata, tuple(args.exclude)))
     else:
         host, port = parse_peer(args.peer)
-        sync_files(NodeFiles(args.root, args.device, args.metadata), host, port)
+        sync_files(NodeFiles(args.root, args.device, args.metadata, tuple(args.exclude)), host, port)
 
 
 if __name__ == "__main__":
