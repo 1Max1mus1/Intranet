@@ -6,7 +6,7 @@
   Intranet 当前只定义同步引擎、传输、安全和历史等逻辑边界及数据安全不变量，具体技术栈等待验证决定。
 
 @ref id=intranet-current-progress type=progress state=draft path=progress/current.md
-  Intranet 已完成本机隔离预验证，V1/V2/V3/V5 通过，V0 双机环境和 V4 网络性能仍待真实双机验收。
+  Intranet 核心双机验证和 TLS 偏移续传已落地，热点测试按用户决定暂停，仅剩真实断网与 Windows 整机重启复测。
 
 @ref id=intranet-data-flow type=module state=draft path=architecture/data-flow.md
   Intranet 的数据从本地完整文件变化出发，经版本协调、加密分块传输和校验替换，在另一端形成文件或冲突与历史记录。

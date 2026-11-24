@@ -1,28 +1,34 @@
 @wiki id=intranet-current-progress type=progress domain=projects state=draft
-@summary Intranet 已完成本机隔离预验证，V1/V2/V3/V5 通过，V0 双机环境和 V4 网络性能仍待真实双机验收。
-@terms Intranet, progress, 技术验证, 双机待测
-@links intranet-overview, intranet-validation-plan, intranet-v0-environment
+@summary Intranet 核心双机验证和 TLS 偏移续传已落地，热点测试按用户决定暂停，仅剩真实断网与 Windows 整机重启复测。
+@terms Intranet, progress, 技术验证, 暂停, 双机待测
+@links intranet-overview, intranet-validation-plan, intranet-stage-1-review, intranet-tailscale-remote-transfer
 
 # Current Progress
 
 ## Now
 
-立项文档和隔离技术验证代码已落地。`python -m validation.run_checks` 可重复验证 V1、V2、V3、V5，并输出 V4 信息性测量。当前仍不开发产品外壳，不接入真实工作目录。
+第一阶段核心验证已完成：真实双机配对与双向 TLS、双向同步矩阵、重命名零字节重传、删除与排除项、冲突副本、SMB 基线、性能比较、定向广播发现、小文件延迟和进程重启恢复均已取得证据。TLS 下载已接入偏移续传，本地验证第二次仅传剩余字节。
+
+用户决定稍后继续进行热点测试，目前暂停。A/B 两端服务均已停止，主 Agent 的 TaskList 无活动任务。真实断网测试未产生完成结果，不能记为通过。
 
 ## Next
 
-真实双机配对、TLS 同步、双向矩阵和性能门槛已通过。定向广播发现 0.828 秒，小文件同步 1.099 秒，B 进程重启后发现 1.031 秒、就绪到同步约 1.183 秒。全局限播在热点下未被发现，定向广播成功。结果见 `docs/evidence/auto-discovery-recovery.json`。阶段评审见 `docs/progress/stage-1-review.md`；剩余真实断网续传与 Windows 整机重启两项阻塞测试，通过前不进入第二阶段。
+1. 用户方便时重试 512 MiB 合成文件的热点断开/恢复，检查断点偏移、自动续传和最终 SHA-256。
+2. 在保存工作后重启一台 Windows 整机，检查配对、自动发现、同步与删除记录恢复。
+3. 审查第一阶段证据并由用户决定是否进入第二阶段产品外壳。
+
+第三阶段方向已记录为通过 Tailscale 提供按需“文件传输助手”，用户主动选择文件发送，不要求持续自动同步；当前不实现。
 
 ## Risks
 
-当前 V1/V2 使用同一进程中的两个隔离目录，V3/V5 使用回环 TCP，不能证明真实局域网发现、NAT/防火墙、双机时钟偏差或 SMB 相对性能。V4 本机结果不构成通过证据。已有旧 `intranet/` 原型仍不是产品，新 `validation/` 也只是一次性验证材料。
+真实断网与 Windows 整机重启仍未完成。热点全局限播不可用，第二阶段需要自动计算定向广播地址并保留静态 IP 备用。Tailscale 路径可能为 DERP，第三阶段性能不能沿用热点结果。旧 `intranet/` 原型和 `validation/` 均不是已验收产品。
 
 ## Evidence
 
-- [V0 本机环境](v0-environment.md)：已登记；另一台电脑与 SMB 基线待补。
-- [本机原始 JSON 结果](../evidence/local-results.json)：V1、V2、V3、V5 为 `pass`，V4 为 `informational`。
-- V1：新增、修改、删除、稳定重命名身份、零字节重传、排除项、删除记录和状态持久化通过。
-- V2：较新版本优先、双端冲突副本、历史恢复和历史清理不删除同步元数据通过。
-- V3：真实回环 TCP 断点续传、替换前后中断及损坏数据不覆盖原文件通过。
-- V5：错误配对码、未配对证书、未知网络及真实 TLS 1.2/1.3 双向认证边界通过。
-- V4：128 MiB 本机直接引擎同步约 0.41 秒，小文件约 0.025 秒；相对本机复制约 33.6%，不是 LAN/SMB 验收值。
+- [第一阶段评审](stage-1-review.md)：V0/V1/V4/V5 通过，V2 核心通过，V3 部分通过。
+- [双机双向矩阵](../evidence/dual-matrix-result.json)：修复后全部断言通过，最终无额外冲突。
+- [性能比较](../evidence/intranet-performance-desktop.json)：Intranet 中位 177.31 Mbps，SMB 中位 39.93 Mbps。
+- [自动发现与恢复](../evidence/auto-discovery-recovery.json)：发现 0.828 秒，小文件 1.099 秒，进程重启发现 1.031 秒。
+- [SMB 基线](../evidence/smb-baseline-desktop.json)：三次哈希一致，临时账户、共享和凭据已清理。
+- [本机回归结果](../evidence/local-results.json)：包含共享进程状态重载回归。
+- 最新 TLS 续传提交：`1c33105`；本地中断后剩余字节传输验证通过，真实热点中断待重试。
