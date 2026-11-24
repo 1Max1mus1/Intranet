@@ -1,7 +1,7 @@
 @wiki id=intranet-roadmap type=runbook domain=projects state=draft
-@summary Intranet 按立项、同步引擎验证、完整产品落地和七日真实试用推进，每阶段由证据而非代码量决定是否继续。
-@terms Intranet, roadmap, 阶段, 垂直切片
-@links intranet-prd, intranet-validation-plan
+@summary Intranet 先验证同步引擎并落地产品，第三阶段再通过 Tailscale 提供无需持续同步的按需远程文件传输助手。
+@terms Intranet, roadmap, 阶段, 垂直切片, Tailscale
+@links intranet-prd, intranet-validation-plan, intranet-tailscale-remote-transfer
 
 # Intranet 路线图
 
@@ -29,13 +29,21 @@
 
 界面不追求精美，但必须状态清楚、操作直接、适合个人日常使用。
 
-## 阶段 3：真实试用与发布候选
+## 阶段 2 验收：真实试用与发布候选
 
 - 使用真实工作目录连续试用至少 7 天。
 - 记录同步失败、冲突、恢复、资源占用和手动兜底行为。
 - 关闭数据丢失、损坏、无法恢复等阻塞问题。
 - 达到 PRD 验收标准或由用户明确接受限制后，形成个人使用发布候选。
 
+## 阶段 3：Tailscale 远程文件传输助手（已确认方向）
+
+- 通过 Tailscale 提供类似“文件传输助手”的按需远程发送。
+- 用户主动选择文件并发送，不要求开启或持续运行文件夹自动同步。
+- 使用已保存的 Tailscale 设备地址，不依赖 UDP 广播。
+- 复用配对、应用层 TLS、分块校验和断点续传能力，明确 direct/DERP 路径和性能限制。
+- 按需传输不承诺目录镜像、删除传播或持续冲突协调；具体流程和验收在第三阶段立项时确认。
+
 ## 暂不安排
 
-多设备、多同步空间、云端中继、跨城市同步、在线占位符和通用用户系统均不进入当前路线。
+多设备、多同步空间、云端文件存储、在线占位符和通用用户系统均不进入当前路线。跨城市按需传输已纳入第三阶段，但不提前到第一、二阶段实现。

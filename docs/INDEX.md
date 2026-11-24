@@ -24,10 +24,13 @@
   Intranet 首版限定两台个人 Windows 电脑和一组目录，提供自动双向同步、冲突副本、历史恢复和受信任网络下的安全直连。
 
 @ref id=intranet-roadmap type=runbook state=draft path=roadmap.md
-  Intranet 按立项、同步引擎验证、完整产品落地和七日真实试用推进，每阶段由证据而非代码量决定是否继续。
+  Intranet 先验证同步引擎并落地产品，第三阶段再通过 Tailscale 提供无需持续同步的按需远程文件传输助手。
 
 @ref id=intranet-stage-1-review type=progress state=draft path=progress/stage-1-review.md
   Intranet 双机核心功能、性能、安全和自动恢复已取得证据，第一阶段仅剩真实断网与 Windows 整机重启复测，不提前进入第二阶段。
+
+@ref id=intranet-tailscale-remote-transfer type=adr state=draft path=adr/0001-tailscale-remote-transfer.md
+  第三阶段增加基于 Tailscale 的按需远程文件传输助手，与持续文件夹同步分离，不要求主动开启同步空间。
 
 @ref id=intranet-v0-environment type=progress state=draft path=progress/v0-environment.md
   Intranet V0 已登记当前 Windows 11 本机并建立隔离测试数据生成器，另一台电脑和真实局域网基线仍待补测。
