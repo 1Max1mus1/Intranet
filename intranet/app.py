@@ -7,7 +7,7 @@ import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox, scrolledtext, ttk
 
-from . import autostart
+from . import autostart, theme
 from .config import AppConfig, ConfigStore, network_id
 from .pairing import PairingManager
 from .service import IntranetService
@@ -21,9 +21,10 @@ class IntranetApp:
         self.config = self.store.load()
         self.service: IntranetService | None = None
         self.root.title("Intranet")
-        self.root.geometry("860x680")
-        self.root.minsize(720, 560)
+        self.root.geometry("1100x760")
+        self.root.minsize(960, 680)
         self.root.protocol("WM_DELETE_WINDOW", self.hide)
+        theme.apply(root)
         self.status = tk.StringVar(value="尚未启动")
         self.network = tk.StringVar(value=f"当前网络：{network_id()}")
         self.folder = tk.StringVar(value=self.config.folder)
@@ -35,6 +36,8 @@ class IntranetApp:
         self.static_peers = tk.StringVar(value=", ".join(self.config.static_peers))
         self.history_days = tk.IntVar(value=self.config.history_days)
         self.history_gb = tk.DoubleVar(value=self.config.history_bytes / 1024**3)
+        self.pages: dict[str, ttk.Frame] = {}
+        self.nav_buttons: dict[str, ttk.Button] = {}
         self._build()
         self.tray = TrayController(self.show, self.toggle_pause, self.open_folder, self.shutdown)
         self.tray.start()
@@ -44,72 +47,112 @@ class IntranetApp:
             self.start_service()
         self.root.after(300, self._poll)
 
+    def _page(self, key: str, title: str, subtitle: str) -> ttk.Frame:
+        page = ttk.Frame(self.content, padding=(8, 4, 24, 16))
+        ttk.Label(page, text=title, style="Title.TLabel").pack(anchor=tk.W, pady=(4, 2))
+        ttk.Label(page, text=subtitle, style="Muted.TLabel").pack(anchor=tk.W, pady=(0, 18))
+        self.pages[key] = page
+        return page
+
+    @staticmethod
+    def _card(parent: ttk.Frame) -> ttk.Frame:
+        card = ttk.Frame(parent, style="Card.TFrame", padding=18)
+        card.pack(fill=tk.X, pady=(0, 14))
+        card.columnconfigure(1, weight=1)
+        return card
+
     def _build(self) -> None:
-        notebook = ttk.Notebook(self.root)
-        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        main = ttk.Frame(notebook, padding=12)
-        pairing = ttk.Frame(notebook, padding=12)
-        history = ttk.Frame(notebook, padding=12)
-        settings = ttk.Frame(notebook, padding=12)
-        notebook.add(main, text="同步")
-        notebook.add(pairing, text="设备配对")
-        notebook.add(history, text="历史恢复")
-        notebook.add(settings, text="设置")
-        main.columnconfigure(1, weight=1)
+        container = ttk.Frame(self.root)
+        container.pack(fill=tk.BOTH, expand=True)
+        sidebar = ttk.Frame(container, style="Sidebar.TFrame", width=190, padding=(20, 26, 12, 20))
+        sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        sidebar.pack_propagate(False)
+        ttk.Label(sidebar, text="Intranet", font=("Segoe UI", 20, "bold")).pack(anchor=tk.W, padx=10, pady=(0, 2))
+        ttk.Label(sidebar, text="文件，始终在身边", style="Muted.TLabel").pack(anchor=tk.W, padx=10, pady=(0, 28))
+        for key, label in (("sync", "同步"), ("pairing", "设备配对"), ("history", "历史恢复"), ("settings", "设置")):
+            button = ttk.Button(sidebar, text=label, style="Nav.TButton", command=lambda k=key: self.show_page(k))
+            button.pack(fill=tk.X, pady=2)
+            self.nav_buttons[key] = button
+        ttk.Label(sidebar, textvariable=self.network, style="Muted.TLabel", wraplength=155).pack(side=tk.BOTTOM, anchor=tk.W, padx=10, pady=12)
+        self.content = ttk.Frame(container, padding=(24, 22, 10, 10))
+        self.content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._build_sync(self._page("sync", "同步", "在两台电脑之间，安静地保持文件一致。"))
+        self._build_pairing(self._page("pairing", "设备配对", "确认一次身份，之后自动安全连接。"))
+        self._build_history(self._page("history", "历史恢复", "被删除或覆盖的文件，可以在这里找回。"))
+        self._build_settings(self._page("settings", "设置", "让同步按照你的使用习惯运行。"))
+        self.show_page("sync")
 
-        ttk.Label(main, text="同步文件夹").grid(row=0, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(main, textvariable=self.folder).grid(row=0, column=1, sticky=tk.EW, padx=8)
-        ttk.Button(main, text="浏览…", command=self.choose_folder).grid(row=0, column=2)
-        ttk.Label(main, text="设备名称").grid(row=1, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(main, textvariable=self.device_name).grid(row=1, column=1, sticky=tk.EW, padx=8)
-        ttk.Label(main, textvariable=self.network).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=8)
-        ttk.Button(main, text="信任此网络", command=self.trust_network).grid(row=2, column=2)
-        actions = ttk.Frame(main)
-        actions.grid(row=3, column=0, columnspan=3, sticky=tk.EW, pady=6)
-        ttk.Button(actions, text="启动同步", command=self.start_service).pack(side=tk.LEFT)
-        ttk.Button(actions, text="暂停 / 恢复", command=self.toggle_pause).pack(side=tk.LEFT, padx=8)
-        ttk.Button(actions, text="打开文件夹", command=self.open_folder).pack(side=tk.LEFT)
-        ttk.Label(main, textvariable=self.status, foreground="#175a9c", wraplength=700).grid(row=4, column=0, columnspan=3, sticky=tk.W, pady=8)
-        ttk.Label(main, text="运行日志").grid(row=5, column=0, columnspan=3, sticky=tk.W)
-        self.log = scrolledtext.ScrolledText(main, height=18, state=tk.DISABLED, wrap=tk.WORD)
-        self.log.grid(row=6, column=0, columnspan=3, sticky=tk.NSEW)
-        main.rowconfigure(6, weight=1)
+    def show_page(self, key: str) -> None:
+        for name, page in self.pages.items():
+            page.pack_forget()
+            self.nav_buttons[name].configure(style="Nav.TButton")
+        self.pages[key].pack(fill=tk.BOTH, expand=True)
+        self.nav_buttons[key].configure(style="ActiveNav.TButton")
+        if key == "history":
+            self.refresh_history()
 
-        pairing.columnconfigure(1, weight=1)
-        ttk.Label(pairing, text="方式一：本机显示配对码", font=("Segoe UI", 11, "bold")).grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=6)
-        ttk.Button(pairing, text="生成配对码并等待", command=self.host_pair).grid(row=1, column=0, columnspan=2, sticky=tk.W)
-        ttk.Label(pairing, text="方式二：输入另一台电脑的地址和配对码", font=("Segoe UI", 11, "bold")).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=(22, 6))
-        ttk.Label(pairing, text="对端 IP:端口").grid(row=3, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(pairing, textvariable=self.peer_address).grid(row=3, column=1, sticky=tk.EW)
-        ttk.Label(pairing, text="配对码").grid(row=4, column=0, sticky=tk.W, pady=5)
-        ttk.Entry(pairing, textvariable=self.pair_code).grid(row=4, column=1, sticky=tk.EW)
-        ttk.Button(pairing, text="完成配对", command=self.join_pair).grid(row=5, column=1, sticky=tk.W, pady=8)
+    def _build_sync(self, page: ttk.Frame) -> None:
+        card = self._card(page)
+        ttk.Label(card, text="同步文件夹", style="Card.TLabel").grid(row=0, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(card, textvariable=self.folder).grid(row=0, column=1, sticky=tk.EW, padx=12)
+        ttk.Button(card, text="浏览…", style="Secondary.TButton", command=self.choose_folder).grid(row=0, column=2)
+        ttk.Label(card, text="设备名称", style="Card.TLabel").grid(row=1, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(card, textvariable=self.device_name).grid(row=1, column=1, sticky=tk.EW, padx=12)
+        ttk.Label(card, textvariable=self.network, style="CardMuted.TLabel").grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=8)
+        ttk.Button(card, text="信任此网络", style="Secondary.TButton", command=self.trust_network).grid(row=2, column=2)
+        actions = ttk.Frame(page)
+        actions.pack(fill=tk.X, pady=(0, 12))
+        ttk.Button(actions, text="启动同步", style="Accent.TButton", command=self.start_service).pack(side=tk.LEFT)
+        ttk.Button(actions, text="暂停 / 恢复", style="Secondary.TButton", command=self.toggle_pause).pack(side=tk.LEFT, padx=8)
+        ttk.Button(actions, text="打开文件夹", style="Secondary.TButton", command=self.open_folder).pack(side=tk.LEFT)
+        ttk.Label(page, textvariable=self.status, style="Status.TLabel", wraplength=680).pack(anchor=tk.W, pady=(0, 12))
+        log_card = self._card(page)
+        ttk.Label(log_card, text="运行日志", style="Section.TLabel").pack(anchor=tk.W, pady=(0, 8))
+        self.log = scrolledtext.ScrolledText(log_card, height=15, state=tk.DISABLED, wrap=tk.WORD, bd=0, bg="#FFFFFF", fg="#1D1D1F", font=("Microsoft YaHei UI", 9))
+        self.log.pack(fill=tk.BOTH, expand=True)
+
+    def _build_pairing(self, page: ttk.Frame) -> None:
+        host = self._card(page)
+        ttk.Label(host, text="在这台电脑上生成配对码", style="Section.TLabel").grid(row=0, column=0, sticky=tk.W, pady=(0, 4))
+        ttk.Label(host, text="另一台电脑输入后，即可完成配对。", style="CardMuted.TLabel").grid(row=1, column=0, sticky=tk.W, pady=(0, 10))
+        ttk.Button(host, text="生成配对码并等待", style="Accent.TButton", command=self.host_pair).grid(row=2, column=0, sticky=tk.W)
+        join = self._card(page)
+        ttk.Label(join, text="使用另一台电脑的配对码", style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
+        ttk.Label(join, text="对端 IP:端口", style="Card.TLabel").grid(row=1, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(join, textvariable=self.peer_address).grid(row=1, column=1, sticky=tk.EW)
+        ttk.Label(join, text="配对码", style="Card.TLabel").grid(row=2, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(join, textvariable=self.pair_code).grid(row=2, column=1, sticky=tk.EW)
+        ttk.Button(join, text="完成配对", style="Accent.TButton", command=self.join_pair).grid(row=3, column=1, sticky=tk.W, pady=(10, 0))
         self.pair_status = tk.StringVar(value="两台电脑只需配对一次")
-        ttk.Label(pairing, textvariable=self.pair_status, wraplength=650, foreground="#175a9c").grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=12)
+        ttk.Label(page, textvariable=self.pair_status, style="Status.TLabel", wraplength=650).pack(anchor=tk.W, pady=8)
 
-        history_actions = ttk.Frame(history)
-        history_actions.pack(fill=tk.X)
-        ttk.Button(history_actions, text="刷新", command=self.refresh_history).pack(side=tk.LEFT)
-        ttk.Button(history_actions, text="恢复选中文件", command=self.restore_history).pack(side=tk.LEFT, padx=8)
-        self.history = ttk.Treeview(history, columns=("path", "date", "size", "reason"), show="headings")
-        for key, title, width in (("path", "原路径", 350), ("date", "时间", 150), ("size", "大小", 100), ("reason", "原因", 130)):
+    def _build_history(self, page: ttk.Frame) -> None:
+        actions = ttk.Frame(page)
+        actions.pack(fill=tk.X, pady=(0, 12))
+        ttk.Button(actions, text="刷新", style="Secondary.TButton", command=self.refresh_history).pack(side=tk.LEFT)
+        ttk.Button(actions, text="恢复选中文件", style="Accent.TButton", command=self.restore_history).pack(side=tk.LEFT, padx=8)
+        card = self._card(page)
+        self.history = ttk.Treeview(card, columns=("path", "date", "size", "reason"), show="headings", height=16)
+        for key, title, width in (("path", "原路径", 320), ("date", "时间", 150), ("size", "大小", 90), ("reason", "原因", 120)):
             self.history.heading(key, text=title)
             self.history.column(key, width=width)
-        self.history.pack(fill=tk.BOTH, expand=True, pady=8)
+        self.history.pack(fill=tk.BOTH, expand=True)
 
-        settings.columnconfigure(1, weight=1)
-        ttk.Label(settings, text="排除路径").grid(row=0, column=0, sticky=tk.W, pady=6)
-        ttk.Entry(settings, textvariable=self.exclusions).grid(row=0, column=1, sticky=tk.EW)
-        ttk.Label(settings, text="相对路径，逗号分隔；排除不传播删除").grid(row=1, column=1, sticky=tk.W)
-        ttk.Label(settings, text="静态设备地址").grid(row=2, column=0, sticky=tk.W, pady=6)
-        ttk.Entry(settings, textvariable=self.static_peers).grid(row=2, column=1, sticky=tk.EW)
-        ttk.Label(settings, text="IP:端口，逗号分隔，广播不可用时使用").grid(row=3, column=1, sticky=tk.W)
-        ttk.Label(settings, text="历史保留天数").grid(row=4, column=0, sticky=tk.W, pady=6)
-        ttk.Spinbox(settings, from_=1, to=365, textvariable=self.history_days).grid(row=4, column=1, sticky=tk.W)
-        ttk.Label(settings, text="历史上限（GB）").grid(row=5, column=0, sticky=tk.W, pady=6)
-        ttk.Spinbox(settings, from_=1, to=100, textvariable=self.history_gb).grid(row=5, column=1, sticky=tk.W)
-        ttk.Checkbutton(settings, text="登录 Windows 时自动启动", variable=self.autostart_enabled).grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=10)
-        ttk.Button(settings, text="保存设置", command=self.save_settings).grid(row=7, column=0, sticky=tk.W)
+    def _build_settings(self, page: ttk.Frame) -> None:
+        network = self._card(page)
+        ttk.Label(network, text="排除路径", style="Card.TLabel").grid(row=0, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(network, textvariable=self.exclusions).grid(row=0, column=1, sticky=tk.EW)
+        ttk.Label(network, text="相对路径，逗号分隔；排除不传播删除", style="CardMuted.TLabel").grid(row=1, column=1, sticky=tk.W)
+        ttk.Label(network, text="静态设备地址", style="Card.TLabel").grid(row=2, column=0, sticky=tk.W, pady=6)
+        ttk.Entry(network, textvariable=self.static_peers).grid(row=2, column=1, sticky=tk.EW)
+        ttk.Label(network, text="IP:端口，逗号分隔，广播不可用时使用", style="CardMuted.TLabel").grid(row=3, column=1, sticky=tk.W)
+        history = self._card(page)
+        ttk.Label(history, text="历史保留天数", style="Card.TLabel").grid(row=0, column=0, sticky=tk.W, pady=6)
+        ttk.Spinbox(history, from_=1, to=365, textvariable=self.history_days).grid(row=0, column=1, sticky=tk.W)
+        ttk.Label(history, text="历史上限（GB）", style="Card.TLabel").grid(row=1, column=0, sticky=tk.W, pady=6)
+        ttk.Spinbox(history, from_=1, to=100, textvariable=self.history_gb).grid(row=1, column=1, sticky=tk.W)
+        ttk.Checkbutton(history, text="登录 Windows 时自动启动", variable=self.autostart_enabled).grid(row=2, column=0, columnspan=2, sticky=tk.W, pady=10)
+        ttk.Button(page, text="保存设置", style="Accent.TButton", command=self.save_settings).pack(anchor=tk.W)
 
     def choose_folder(self) -> None:
         selected = filedialog.askdirectory(initialdir=self.folder.get() or str(Path.home()))

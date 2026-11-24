@@ -18,7 +18,14 @@ Do not edit by hand; regenerate from product and validation Python sources.
 
 - class `IntranetApp`
   - `__init__self, root: tk.Tk, store: ConfigStore | None=None, background: bool=False`
+  - `_pageself, key: str, title: str, subtitle: str`
+  - `_cardparent: ttk.Frame`
   - `_buildself`
+  - `show_pageself, key: str`
+  - `_build_syncself, page: ttk.Frame`
+  - `_build_pairingself, page: ttk.Frame`
+  - `_build_historyself, page: ttk.Frame`
+  - `_build_settingsself, page: ttk.Frame`
   - `choose_folderself`
   - `save_configself`
   - `save_settingsself`
@@ -174,6 +181,10 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `stopself`
   - `history_entriesself`
   - `restoreself, entry_id: str`
+
+## `intranet/theme.py`
+
+- `applyroot: tk.Tk`
 
 ## `intranet/transport.py`
 

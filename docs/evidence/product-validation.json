@@ -13,6 +13,12 @@
     "background_start": "pass",
     "isolated_config": true
   },
+  "ui": {
+    "style": "Apple-inspired minimal: light gray background, white cards, sidebar, single blue accent",
+    "all_four_pages_rendered": "pass",
+    "tray_lifecycle": "pass",
+    "rebuilt_packaged_application": "pass"
+  },
   "installer": {
     "silent_install": "pass",
     "installed_application_start": "pass",

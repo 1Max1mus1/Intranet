@@ -9,7 +9,7 @@
 
 第二阶段产品外壳已实现：主界面、一次性配对、受信任网络、后台自动同步、静态地址、暂停恢复、历史恢复、排除项、托盘、Windows 登录自启动和当前用户安装包。
 
-`python -m validation.product_smoke --gui` 的配对、A→B、B→A、暂停恢复和 GUI/托盘生命周期全部通过。打包应用后台启动通过；最终安装器通过静默安装、安装后启动、卸载和注册表恢复。证据见 `docs/evidence/product-validation.json`。
+`python -m validation.product_smoke --gui` 的配对、A→B、B→A、暂停恢复和 GUI/托盘生命周期全部通过。UI 已统一为苹果简约风：浅灰背景、白色卡片、左侧导航和单一蓝色强调，四个页面已实际渲染检查。打包应用后台启动通过；最终安装器通过静默安装、安装后启动、卸载和注册表恢复。证据见 `docs/evidence/product-validation.json`。
 
 ## Next
 

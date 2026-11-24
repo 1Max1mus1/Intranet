@@ -15,6 +15,7 @@
 - `intranet/service.py`：受信任网络门禁、UDP 发现、静态地址、后台同步、暂停和历史清理。
 - `intranet/app.py`：主界面、配对、历史恢复、设置与事件展示。
 - `intranet/tray.py`：托盘菜单、状态和冲突/清理通知。
+- `intranet/theme.py`：苹果简约风配色、字体、侧栏导航、卡片与按钮样式。
 - `intranet/autostart.py`：当前用户 Run 注册表项。
 - `build.ps1` / `installer.iss`：PyInstaller 与当前用户 Inno Setup 安装包。
 
