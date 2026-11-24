@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-11-25",
+  "file": "resume-large-v5.bin",
+  "total_bytes": 536870912,
+  "resumed_bytes": 512114688,
+  "downloaded_bytes": 24756224,
+  "sum_bytes": 536870912,
+  "sha256_a": "ab95db304446c8dd6d586d4e9145e274bc2ab1fe28f8c3eb5c08bcac5153a065",
+  "sha256_b": "ab95db304446c8dd6d586d4e9145e274bc2ab1fe28f8c3eb5c08bcac5153a065",
+  "hash_match": true,
+  "partial_files_remaining": 0,
+  "watch_event": "WATCH_SYNCED emitted for binary file without UTF-8 error",
+  "scope": "valid resume across B node process stop/start; not a physical hotspot outage",
+  "physical_hotspot_test": "skipped by user after repeated pre-synchronization of test files; not passed and not treated as a product bug at this time"
+}
