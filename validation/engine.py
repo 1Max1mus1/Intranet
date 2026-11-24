@@ -68,6 +68,7 @@ class Record:
 class SyncStats:
     downloaded_files: int = 0
     downloaded_bytes: int = 0
+    resumed_bytes: int = 0
     renames_without_download: int = 0
     deletes: int = 0
     conflicts: int = 0
@@ -372,6 +373,7 @@ class SyncEngine:
         temporary = destination.parent / f".intranet-spike-{remote.file_id}-{remote.sha256[:16]}.part"
         completed = False
         try:
+            stats.resumed_bytes += temporary.stat().st_size if temporary.exists() else 0
             stats.downloaded_bytes += self._download_from(peer, remote, temporary)
             if temporary.stat().st_size != remote.size or hash_file(temporary) != remote.sha256:
                 temporary.unlink(missing_ok=True)

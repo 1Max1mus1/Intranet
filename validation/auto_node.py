@@ -170,11 +170,11 @@ class AutoNode:
                         for relative in self.watch:
                             path = self.files.engine.path_for(relative)
                             if path.exists():
-                                value = path.read_text(encoding="utf-8").strip()
                                 result = {"device": peer.device, "path": relative}
                                 try:
+                                    value = path.read_text(encoding="utf-8").strip()
                                     result["latency_seconds"] = time.time() - float(value)
-                                except ValueError:
+                                except (OSError, UnicodeError, ValueError):
                                     pass
                                 self.emit("WATCH_SYNCED", **result)
                 except (OSError, ValueError, ConnectionError) as exc:

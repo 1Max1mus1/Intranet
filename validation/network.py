@@ -51,7 +51,7 @@ class RemotePeer:
     def __init__(self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path):
         context = client_context(key_path, certificate_path, peer_certificate)
         raw = socket.create_connection((host, port), timeout=10)
-        raw.settimeout(60)
+        raw.settimeout(5)
         self.connection = context.wrap_socket(raw, server_hostname="validation-peer")
         expected = fingerprint(peer_certificate.read_bytes())
         actual = ssl.DER_cert_to_PEM_cert(self.connection.getpeercert(binary_form=True)).encode("ascii")
