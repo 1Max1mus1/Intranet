@@ -26,6 +26,9 @@
 @ref id=intranet-roadmap type=runbook state=draft path=roadmap.md
   Intranet 按立项、同步引擎验证、完整产品落地和七日真实试用推进，每阶段由证据而非代码量决定是否继续。
 
+@ref id=intranet-stage-1-review type=progress state=draft path=progress/stage-1-review.md
+  Intranet 双机核心功能、性能、安全和自动恢复已取得证据，第一阶段仅剩真实断网与 Windows 整机重启复测，不提前进入第二阶段。
+
 @ref id=intranet-v0-environment type=progress state=draft path=progress/v0-environment.md
   Intranet V0 已登记当前 Windows 11 本机并建立隔离测试数据生成器，另一台电脑和真实局域网基线仍待补测。
 

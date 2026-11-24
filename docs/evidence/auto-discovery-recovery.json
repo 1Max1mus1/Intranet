@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-11-24",
+  "network": "Victor‘s iPhone 15",
+  "broadcast": "172.20.10.15",
+  "global_broadcast_result": "no peer discovered after about 50 seconds",
+  "directed_broadcast_discovery_seconds": 0.8280000000086147,
+  "small_file": {
+    "created_timestamp": 1795506598.9936347,
+    "synced_timestamp": 1795506600.0926425,
+    "latency_seconds": 1.0990078449249268,
+    "downloaded_bytes": 18,
+    "threshold_seconds": 5,
+    "status": "pass"
+  },
+  "process_restart": {
+    "auto_ready_timestamp": 1795506821.7252688,
+    "discovered_timestamp": 1795506822.7505744,
+    "discovery_seconds": 1.0310000000026776,
+    "synced_timestamp": 1795506822.9082787,
+    "ready_to_sync_seconds": 1.1830099999902329,
+    "offline_wait_included_latency_seconds": 43.1711266040802,
+    "downloaded_bytes": 17,
+    "status": "pass"
+  },
+  "scope": "real two-computer directed UDP discovery and paired TLS synchronization; B process restart, not a full Windows reboot"
+}
