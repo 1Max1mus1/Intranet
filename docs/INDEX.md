@@ -3,10 +3,10 @@
 ## Knowledge
 
 @ref id=intranet-architecture type=module state=draft path=architecture/overview.md
-  Intranet 当前只定义同步引擎、传输、安全和历史等逻辑边界及数据安全不变量，具体技术栈等待验证决定。
+  Intranet 产品由同步引擎、TLS 网络、配对配置、后台服务、Tkinter 界面、托盘和 Windows 安装构建组成。
 
 @ref id=intranet-current-progress type=progress state=draft path=progress/current.md
-  Intranet 核心双机验证、TLS 偏移续传和 Windows 整机恢复已通过，真实断网按用户决定跳过，等待第二阶段审查。
+  Intranet 第二阶段主界面、配对、自动同步、托盘、自启动和安装包已实现并通过隔离验证，待真实双机产品试用。
 
 @ref id=intranet-data-flow type=module state=draft path=architecture/data-flow.md
   Intranet 的数据从本地完整文件变化出发，经版本协调、加密分块传输和校验替换，在另一端形成文件或冲突与历史记录。
@@ -18,7 +18,7 @@
   给另一台 Windows 电脑 Agent 的完整隔离预验证 Prompt，包含仓库地址、代码前提、环境、命令、证据格式和安全边界。
 
 @ref id=intranet-overview type=project-overview state=draft path=../PROJECT.md
-  Intranet 是在两台个人 Windows 电脑之间提供云盘式体验的局域网双向文件同步工具，目前处于立项与技术验证前阶段。
+  Intranet 是在两台个人 Windows 电脑之间提供云盘式体验的局域网双向同步工具，第二阶段产品外壳和安装包已实现并通过本机验证。
 
 @ref id=intranet-prd type=module state=draft path=prd.md
   Intranet 首版限定两台个人 Windows 电脑和一组目录，提供自动双向同步、冲突副本、历史恢复和受信任网络下的安全直连。

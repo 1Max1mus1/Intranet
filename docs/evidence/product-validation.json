@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-11-25",
+  "version": "0.2.0",
+  "product_smoke": {
+    "pairing": "pass",
+    "a_to_b": "pass",
+    "b_to_a": "pass",
+    "pause_resume": "pass",
+    "gui_and_tray_lifecycle": "pass",
+    "scope": "two isolated product configurations over real local TLS"
+  },
+  "packaged_application": {
+    "background_start": "pass",
+    "isolated_config": true
+  },
+  "installer": {
+    "silent_install": "pass",
+    "installed_application_start": "pass",
+    "uninstall": "pass",
+    "autostart_registry_restored": "pass",
+    "path": "dist/installer/IntranetSetup.exe"
+  },
+  "remaining": [
+    "real two-computer product trial",
+    "seven-day acceptance with actual working directory",
+    "physical hotspot outage remains skipped as previously decided"
+  ]
+}

@@ -1,6 +1,6 @@
 @wiki id=intranet-overview type=project-overview domain=projects state=draft
-@summary Intranet 是在两台个人 Windows 电脑之间提供云盘式体验的局域网双向文件同步工具，目前处于立项与技术验证前阶段。
-@terms Intranet, 局域网同步, 双向同步, 文件历史
+@summary Intranet 是在两台个人 Windows 电脑之间提供云盘式体验的局域网双向同步工具，第二阶段产品外壳和安装包已实现并通过本机验证。
+@terms Intranet, 局域网同步, 双向同步, 文件历史, Windows 安装包
 @links intranet-prd, intranet-validation-plan, intranet-roadmap, intranet-current-progress
 
 # Intranet
@@ -11,11 +11,16 @@
 
 ## Scope
 
-首版只服务两台固定的 Windows 电脑和一组同步根目录。完整范围见 [PRD](docs/prd.md)。当前只批准关键技术验证，不批准继续产品界面开发。
+首版服务两台固定 Windows 电脑和一组同步根目录，包含配对、后台同步、托盘、历史恢复、自启动和安装包。第三阶段通过 Tailscale 提供按需文件传输助手，详见路线图。
 
 ## Run
 
-当前没有经完整验收的产品运行路径。仓库内已有代码仅为一次性技术验证材料，不应直接接入真实工作目录。后续验证命令、测试数据和结果必须记录在 `docs/progress/current.md`。
+- 源码：`python main.py`，后台模式为 `python main.py --background`。
+- 安装：`dist/installer/IntranetSetup.exe`，支持当前用户安装和卸载。
+- 构建：`powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1`。
+- 产品隔离验证：`python -m validation.product_smoke --gui`。
+
+首次使用必须手动选择目录、配对并信任网络。已有验证材料和产品隔离测试不等于真实工作目录验收。
 
 ## Key entry points
 
@@ -24,7 +29,8 @@
 - [后续开发路线](docs/roadmap.md)
 - [架构约束与候选边界](docs/architecture/overview.md)
 - [当前进展与证据](docs/progress/current.md)
+- [第三阶段 Tailscale 决策](docs/adr/0001-tailscale-remote-transfer.md)
 
 ## Current state
 
-本机隔离预验证已完成，V1/V2/V3/V5 通过；V0 双机环境和 V4 真实局域网性能仍待补测。托盘、主界面、自启动和安装包属于第二阶段，须在双机验证结果经用户审查后实施。
+第二阶段的主界面、配对、后台自动同步、托盘、自启动和安装包已实现。产品隔离配对与双向 TLS、暂停恢复、GUI、打包应用及安装/卸载均通过。真实双机产品试用和第二阶段七日验收尚未完成。

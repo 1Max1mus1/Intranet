@@ -69,6 +69,15 @@ SMB 基线使用 `python -m validation.smb_baseline --source-dir "\\IP\IntranetV
 
 已配对节点可用 `validation/auto_node.py` 验证 UDP 自动发现、定时 TLS 同步和断线恢复。广播包含证书指纹，未配对设备会被忽略。`--watch <相对路径>` 输出文件到达事件；文件内容为 Unix 时间戳时同时输出估算延迟。自动模式仍只用于隔离验证，不是产品后台服务。
 
+## 第二阶段产品验证
+
+```powershell
+python -m validation.product_smoke --gui
+powershell -NoProfile -ExecutionPolicy Bypass -File build.ps1
+```
+
+产品冒烟覆盖真实本地 TLS 配对、双向后台同步、暂停恢复和 GUI/托盘生命周期。构建后还需启动打包应用，并验证静默安装、安装后启动、卸载和自启动注册表恢复。当前结果见 `docs/evidence/product-validation.json`。
+
 ## 第一阶段完成定义
 
 - 每项实验都有原始证据、环境、结果和继续/修订/停止结论。

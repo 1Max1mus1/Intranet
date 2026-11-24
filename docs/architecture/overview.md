@@ -1,33 +1,36 @@
 @wiki id=intranet-architecture type=module domain=projects state=draft
-@summary Intranet 当前只定义同步引擎、传输、安全和历史等逻辑边界及数据安全不变量，具体技术栈等待验证决定。
-@terms Intranet, architecture, 不变量, 同步引擎
+@summary Intranet 产品由同步引擎、TLS 网络、配对配置、后台服务、Tkinter 界面、托盘和 Windows 安装构建组成。
+@terms Intranet, architecture, 同步引擎, 产品架构, Windows
 @links intranet-prd, intranet-validation-plan
 
 # Architecture Overview
 
-本页记录已确认的逻辑边界，不代表已选定语言、框架或旧代码结构。
-
 ## Modules
 
-- **变化观察与版本模型**：以稳定 `file_id` 关联文件身份，以 Windows `st_dev:st_ino` 辅助识别本地重命名，维护内容摘要、版本和删除记录。
-- **协调与冲突**：比较双方版本，生成可解释的操作，保留并发内容。
-- **传输与恢复**：分块、校验、续传、临时文件和原子替换。
-- **发现与安全**：受信任网络、设备发现、配对证书和加密通道。
-- **历史与排除**：历史区生命周期、恢复和本地排除规则。
-- **产品外壳（第二阶段）**：后台服务、托盘、主界面、自启动和安装。
+- `intranet/engine.py`：稳定文件身份、版本、冲突、历史、排除、原子替换和断点文件。
+- `intranet/security.py`：配对注册、证书、网络策略和 TLS 上下文。
+- `intranet/network.py`：清单与内容协议、偏移续传、双向证书校验。
+- `intranet/pairing.py`：一次性配对码和证书交换。
+- `intranet/config.py`：用户配置、当前网络与定向广播计算。
+- `intranet/service.py`：受信任网络门禁、UDP 发现、静态地址、后台同步、暂停和历史清理。
+- `intranet/app.py`：主界面、配对、历史恢复、设置与事件展示。
+- `intranet/tray.py`：托盘菜单、状态和冲突/清理通知。
+- `intranet/autostart.py`：当前用户 Run 注册表项。
+- `build.ps1` / `installer.iss`：PyInstaller 与当前用户 Inno Setup 安装包。
 
 ## Interfaces
 
-第一阶段只定义可观察行为：输入测试目录变化，输出另一端完整文件、冲突或历史记录以及可验证日志。内部接口在 V1–V3 后设计，避免被已有原型限制。
+UI 和托盘只通过 `IntranetService` 的事件队列、暂停接口和历史接口控制后台，不直接修改同步记录。`ConfigStore` 管理目录、证书与配对材料，秘密不写入普通配置或日志。验证代码只使用隔离目录。
 
 ## Invariants
 
 - 半成品绝不能成为成功版本或替换原完整文件。
-- 未被排除的变更最终可补齐，离线旧文件不能因历史清理复活。
+- 网络请求期间不持有本地状态锁，避免双向同步相互等待。
 - 并发冲突不得静默丢弃任何一方内容。
-- 排除项只影响本机同步，不传播删除。
-- 未配对设备或未知网络不能读取或修改同步空间。
+- 排除项不传播删除；未知网络不启动监听或同步。
+- 未配对设备不能通过证书指纹和双向 TLS 认证。
+- 关闭窗口只隐藏到托盘，退出必须从托盘明确执行。
 
 ## Failure modes
 
-锁死文件、持续写入、磁盘不足、广播禁用、断网、进程被杀、时钟偏差、同名冲突和历史区满必须在验证中显式覆盖，不能依赖理想网络。
+锁死文件、持续写入、磁盘不足、广播禁用、断网、进程重启、Windows 重启、时钟偏差、同名冲突和历史区满均有对应处理或明确未验收边界。真实物理断网目前按用户决定跳过。
