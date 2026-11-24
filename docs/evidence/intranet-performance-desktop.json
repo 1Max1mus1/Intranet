@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-11-24T06:52:22.087582+00:00",
+  "peer": "172.20.10.11:47630",
+  "results": [
+    {"run": 1, "seconds": 4.257084800003213, "bytes": 134217728, "mbps": 252.22467356045848, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "deletes_from_stale_metadata": 2},
+    {"run": 2, "seconds": 6.055799100009608, "bytes": 134217728, "mbps": 177.30803255978165, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "deletes_from_stale_metadata": 2},
+    {"run": 3, "seconds": 8.971644399993238, "bytes": 134217728, "mbps": 119.68171899465936, "sha256": "734546cb6c9f493ed1aed3d17e8a1c4c5ef282898313fef4403807163e9b4cef", "deletes_from_stale_metadata": 2}
+  ],
+  "median_mbps": 177.30803255978165,
+  "smb_median_mbps": 39.93094361615796,
+  "ratio_to_smb": 4.440366705685221,
+  "threshold": 0.70,
+  "performance_gate": "pass",
+  "hashes_match": true,
+  "notes": "Each run included two tombstones caused by reusing server metadata from the earlier small-file test. No real user files existed or were deleted. Subsequent scenario tests should use fresh isolated metadata.",
+  "scope": "same 128 MiB synthetic file, three real paired TLS runs on the private hotspot"
+}

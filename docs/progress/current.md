@@ -11,7 +11,7 @@
 
 ## Next
 
-两台电脑均已完成本机预验证、真实双机配对与 TLS 小文件同步。三次 Windows SMB 基线分别为 100.53、39.93、30.91 Mbps，中位数 39.93 Mbps，哈希全部一致，显示热点性能波动明显。临时账户、共享和凭据已清理，结果见 `docs/evidence/smb-baseline-desktop.json`。先前 Intranet 单次 72.52 Mbps 不能直接与该中位数判定优劣，下一步需在相近时段完成多轮 Intranet 传输和双向同步矩阵。
+真实双机配对、TLS 同步和 SMB 基线已完成。三轮 Intranet TLS 传输为 252.22、177.31、119.68 Mbps，中位数 177.31 Mbps，是 SMB 中位数 39.93 Mbps 的 4.44 倍，超过 70% 性能门槛，哈希全部一致。结果见 `docs/evidence/intranet-performance-desktop.json`。每轮另有两条来自复用旧服务器元数据的删除记录，已在证据中注明；后续矩阵使用全新隔离元数据。服务已关闭。V4 的发现/恢复、小文件和完整 V1 双向矩阵仍待完成。
 
 ## Risks
 
