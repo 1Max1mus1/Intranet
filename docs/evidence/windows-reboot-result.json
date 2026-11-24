@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-11-25",
+  "network": "Victor‘s iPhone 15",
+  "restarted_computer": "Victor-Desktop",
+  "network_reconnected": true,
+  "pairing_preserved": true,
+  "auto_ready_timestamp": 1795541857.7221334,
+  "discovered_timestamp": 1795541858.5342784,
+  "discovery_seconds": 0.828000000000003,
+  "synced_timestamp": 1795541858.6765113,
+  "ready_to_sync_seconds": 0.9543776999998093,
+  "downloaded_files": 1,
+  "downloaded_bytes": 18,
+  "resumed_bytes": 0,
+  "file": "windows-reboot-recovery.txt",
+  "created_timestamp": 1795541714.6295214,
+  "file_content_matches": true,
+  "offline_wait_included_latency_seconds": 144.04698991775513,
+  "errors": null,
+  "scope": "full Windows reboot followed by existing-certificate discovery and TLS synchronization"
+}

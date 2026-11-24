@@ -1,5 +1,5 @@
 @wiki id=intranet-current-progress type=progress domain=projects state=draft
-@summary Intranet 核心双机验证和 TLS 偏移续传已落地，热点测试按用户决定暂停，仅剩真实断网与 Windows 整机重启复测。
+@summary Intranet 核心双机验证、TLS 偏移续传和 Windows 整机恢复已通过，真实断网按用户决定跳过，等待第二阶段审查。
 @terms Intranet, progress, 技术验证, 暂停, 双机待测
 @links intranet-overview, intranet-validation-plan, intranet-stage-1-review, intranet-tailscale-remote-transfer
 
@@ -14,7 +14,7 @@
 ## Next
 
 1. 真实热点断网测试按用户决定跳过，不再占用当前时间；该项未验收，后续根据实际 bug 再处理。
-2. Windows 整机重启恢复以后另行安排。
+2. Windows 整机重启恢复已通过：配对保留，发现 0.828 秒、就绪到同步约 0.953 秒，文件内容一致，结果见 `docs/evidence/windows-reboot-result.json`。
 3. 当前已验证进程停止后续传：v5 断点 512114688 字节，重启后仅传 24756224 字节，A/B 哈希一致，半成品清理。证据见 `docs/evidence/process-resume-result.json`。
 4. 后续第一阶段审查由用户决定何时继续；当前测试服务停止。
 
