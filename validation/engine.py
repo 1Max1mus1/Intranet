@@ -296,19 +296,29 @@ class SyncEngine:
         shutil.copy2(source, target)
 
     def _download_from(self, peer: SyncEngine, remote: Record, temporary: Path) -> int:
-        source, current = peer.open_record(remote)
-        with source, temporary.open("wb") as target:
+        offset = temporary.stat().st_size if temporary.exists() else 0
+        if offset > remote.size:
+            raise ValueError("断点文件大于源文件")
+        source, current = peer.open_record(remote, offset=offset)
+        transferred = 0
+        with source, temporary.open("r+b" if offset else "wb") as target:
+            target.seek(offset)
             while chunk := source.read(1024 * 1024):
                 target.write(chunk)
-        return current.size
+                transferred += len(chunk)
+        return transferred
 
-    def open_record(self, requested: Record) -> tuple[BinaryIO, Record]:
+    def open_record(self, requested: Record, offset: int = 0) -> tuple[BinaryIO, Record]:
         with self.lock:
             self.scan()
             current = self.records.get(requested.file_id)
             if current is None or current.deleted or current.wire() != requested.wire():
                 raise FileNotFoundError("文件版本已变化")
-            return self.path_for(current.path).open("rb"), current
+            if offset < 0 or offset > current.size:
+                raise ValueError("无效续传偏移")
+            source = self.path_for(current.path).open("rb")
+            source.seek(offset)
+            return source, current
 
     def sync_from(self, peer: SyncEngine) -> SyncStats:
         with self.lock:
@@ -359,23 +369,27 @@ class SyncEngine:
             self._adopt(remote)
             stats.renames_without_download += 1
             return
-        if conflict and local_path.exists():
-            self._conflict_copy(local_path)
-            stats.conflicts += 1
-        if destination.exists():
-            self._preserve_history(destination, remote.path, "sync-overwrite")
-            stats.history_entries += 1
-        temporary = destination.parent / f".intranet-spike-{uuid.uuid4().hex}.tmp"
+        temporary = destination.parent / f".intranet-spike-{remote.file_id}-{remote.sha256[:16]}.part"
+        completed = False
         try:
             stats.downloaded_bytes += self._download_from(peer, remote, temporary)
             if temporary.stat().st_size != remote.size or hash_file(temporary) != remote.sha256:
+                temporary.unlink(missing_ok=True)
                 raise ValueError("文件内容校验失败")
+            if conflict and local_path.exists():
+                self._conflict_copy(local_path)
+                stats.conflicts += 1
+            if destination.exists():
+                self._preserve_history(destination, remote.path, "sync-overwrite")
+                stats.history_entries += 1
             os.replace(temporary, destination)
             os.utime(destination, ns=(remote.mtime_ns, remote.mtime_ns))
             self._adopt(remote)
             stats.downloaded_files += 1
+            completed = True
         finally:
-            temporary.unlink(missing_ok=True)
+            if completed:
+                temporary.unlink(missing_ok=True)
 
     def restore(self, entry_id: str) -> Path:
         restored = self.history.restore(entry_id, self.root)

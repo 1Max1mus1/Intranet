@@ -67,18 +67,18 @@ class RemotePeer:
             raise ValueError("无法取得文件清单")
         return response["records"]
 
-    def open_record(self, requested: Record) -> tuple[SocketReader, Record]:
+    def open_record(self, requested: Record, offset: int = 0) -> tuple[SocketReader, Record]:
         if self.busy:
             raise RuntimeError("上一个文件尚未读取完成")
-        send_json(self.connection, {"type": "open", "record": requested.wire()})
+        send_json(self.connection, {"type": "open", "record": requested.wire(), "offset": offset})
         response = receive_json(self.connection)
         if response.get("type") == "error":
             raise FileNotFoundError(response.get("message"))
         current = Record.from_wire(response["record"])
-        if current.wire() != requested.wire():
-            raise ValueError("文件版本在传输前发生变化")
+        if current.wire() != requested.wire() or int(response.get("offset", -1)) != offset:
+            raise ValueError("文件版本或续传偏移在传输前发生变化")
         self.busy = True
-        return SocketReader(self, current.size), current
+        return SocketReader(self, current.size - offset), current
 
     def close(self) -> None:
         self.connection.close()
@@ -132,14 +132,15 @@ class NodeServer:
                         send_json(connection, {"type": "manifest", "records": self.engine.manifest()})
                     elif request.get("type") == "open":
                         requested = Record.from_wire(request["record"])
+                        offset = int(request.get("offset", 0))
                         try:
-                            source, current = self.engine.open_record(requested)
+                            source, current = self.engine.open_record(requested, offset=offset)
                         except (OSError, ValueError) as exc:
                             send_json(connection, {"type": "error", "message": str(exc)})
                             continue
                         with source:
-                            send_json(connection, {"type": "file", "record": current.wire()})
-                            remaining = current.size
+                            send_json(connection, {"type": "file", "record": current.wire(), "offset": offset})
+                            remaining = current.size - offset
                             while remaining:
                                 chunk = source.read(min(1024 * 1024, remaining))
                                 if not chunk:

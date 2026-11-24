@@ -79,7 +79,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `_preserve_historyself, path: Path, relative: str, reason: str`
   - `_conflict_copyself, source: Path`
   - `_download_fromself, peer: SyncEngine, remote: Record, temporary: Path`
-  - `open_recordself, requested: Record`
+  - `open_recordself, requested: Record, offset: int=0`
   - `sync_fromself, peer: SyncEngine`
   - `_sync_from_unlockedself, peer: SyncEngine`
   - `_applyself, peer: SyncEngine, remote: Record, local: Record | None, stats: SyncStats, conflict: bool`
@@ -96,7 +96,7 @@ Do not edit by hand; regenerate from validation Python sources.
 - class `RemotePeer`
   - `__init__self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path`
   - `manifestself`
-  - `open_recordself, requested: Record`
+  - `open_recordself, requested: Record, offset: int=0`
   - `closeself`
 - class `NodeServer`
   - `__init__self, engine: SyncEngine, key_path: Path, certificate_path: Path, peer_certificate: Path, registry: PairingRegistry, host: str='0.0.0.0', port: int=47630`
