@@ -21,7 +21,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `current_peersself`
   - `closeself`
 - class `AutoNode`
-  - `__init__self, files: NodeFiles, port: int, discovery_port: int, remote_discovery_port: int, broadcast: str, watch: list[str]`
+  - `__init__self, files: NodeFiles, port: int, discovery_port: int, remote_discovery_port: int, broadcast: str, watch: list[str], chunk_delay: float=0`
   - `emitself, kind: str, **values`
   - `startself`
   - `_sync_loopself`
@@ -94,7 +94,7 @@ Do not edit by hand; regenerate from validation Python sources.
   - `readself, size: int=-1`
   - `closeself`
 - class `RemotePeer`
-  - `__init__self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path`
+  - `__init__self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path, chunk_delay: float=0`
   - `manifestself`
   - `open_recordself, requested: Record, offset: int=0`
   - `closeself`

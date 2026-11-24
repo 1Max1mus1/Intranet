@@ -3,6 +3,7 @@ from __future__ import annotations
 import socket
 import ssl
 import threading
+import time
 from pathlib import Path
 
 from .engine import Record, SyncEngine
@@ -34,6 +35,8 @@ class SocketReader:
         if not data:
             raise ConnectionError("文件传输中断")
         self.remaining -= len(data)
+        if self.peer.chunk_delay:
+            time.sleep(self.peer.chunk_delay)
         return data
 
     def close(self) -> None:
@@ -48,7 +51,7 @@ class SocketReader:
 
 
 class RemotePeer:
-    def __init__(self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path):
+    def __init__(self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path, chunk_delay: float = 0):
         context = client_context(key_path, certificate_path, peer_certificate)
         raw = socket.create_connection((host, port), timeout=10)
         raw.settimeout(5)
@@ -59,6 +62,7 @@ class RemotePeer:
             self.connection.close()
             raise ssl.SSLError("对端证书与配对记录不一致")
         self.busy = False
+        self.chunk_delay = max(0, chunk_delay)
 
     def manifest(self) -> list[dict]:
         send_json(self.connection, {"type": "manifest"})

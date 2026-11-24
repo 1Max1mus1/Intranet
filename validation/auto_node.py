@@ -104,7 +104,7 @@ class DiscoveryService:
 
 
 class AutoNode:
-    def __init__(self, files: NodeFiles, port: int, discovery_port: int, remote_discovery_port: int, broadcast: str, watch: list[str]):
+    def __init__(self, files: NodeFiles, port: int, discovery_port: int, remote_discovery_port: int, broadcast: str, watch: list[str], chunk_delay: float = 0):
         self.files = files
         self.started = time.monotonic()
         self.server = NodeServer(
@@ -125,6 +125,7 @@ class AutoNode:
             broadcast,
         )
         self.watch = set(watch)
+        self.chunk_delay = chunk_delay
         self.stop_event = threading.Event()
         self.known: set[str] = set()
         self.last_attempt: dict[str, float] = {}
@@ -159,6 +160,7 @@ class AutoNode:
                         self.files.key,
                         self.files.certificate,
                         self.files.peer_certificate,
+                        chunk_delay=self.chunk_delay,
                     )
                     try:
                         stats = self.files.engine.sync_from(remote)
@@ -197,6 +199,7 @@ def main() -> None:
     parser.add_argument("--remote-discovery-port", type=int)
     parser.add_argument("--broadcast", default="255.255.255.255")
     parser.add_argument("--watch", action="append", default=[])
+    parser.add_argument("--chunk-delay", type=float, default=0, help="测试用每 MiB 延迟秒数")
     parser.add_argument("--trusted-network", action="store_true")
     args = parser.parse_args()
     if not args.trusted_network:
@@ -209,6 +212,7 @@ def main() -> None:
         args.remote_discovery_port or args.discovery_port,
         args.broadcast,
         args.watch,
+        args.chunk_delay,
     )
     node.start()
     try:
