@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-11-24",
+  "network": "Victor‘s iPhone 15",
+  "code_commit": "ce70ea1",
+  "initial_a_pull": {
+    "downloaded_files": 3,
+    "downloaded_bytes": 25,
+    "conflicts": 1,
+    "history_entries": 2,
+    "verification": "A2_PULL_AND_CONFLICT_PASS"
+  },
+  "final_b_pull": {
+    "downloaded_files": 2,
+    "downloaded_bytes": 17,
+    "renames_without_download": 1,
+    "deletes": 1,
+    "conflicts": 0,
+    "history_entries": 1,
+    "verification": "MATRIX_B2_VERIFY_PASS"
+  },
+  "covered": [
+    "A to B initial synchronization",
+    "B to A modifications and new file",
+    "rename with zero content bytes",
+    "delete propagation",
+    "excluded cache remains local",
+    "concurrent modification with newer mtime at original path",
+    "conflict copy synchronized to both peers"
+  ],
+  "regression_fixed": "Separate serve and sync processes previously shared stale in-memory state. Engine now reloads persisted records before every scan; shared-process regression passes.",
+  "services_stopped": true,
+  "scope": "real two-computer matrix over paired TLS using only synthetic files"
+}
