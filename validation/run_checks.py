@@ -61,7 +61,17 @@ def v1(root: Path) -> dict:
     assert (root / "A" / "from-b.txt").read_text() == "B"
     restarted = SyncEngine(root / "A", "A", root / "meta-A")
     assert any(record.deleted for record in restarted.records.values())
-    return {"status": "pass", "rename_download_bytes": stats.downloaded_bytes, "scope": "two isolated roots in one process"}
+    shared_server = SyncEngine(root / "Shared", "S", root / "shared-meta")
+    shared_writer = SyncEngine(root / "Shared", "S", root / "shared-meta")
+    remote = SyncEngine(root / "Remote", "R", root / "remote-meta")
+    (root / "Shared" / "shared.txt").write_text("base", encoding="utf-8")
+    remote.sync_from(shared_writer)
+    shared_server.scan()
+    (root / "Remote" / "shared.txt").write_text("remote update", encoding="utf-8")
+    shared_writer.sync_from(remote)
+    reloaded = next(record for record in shared_server.manifest() if record["path"] == "shared.txt")
+    assert reloaded["device"] == "R" and reloaded["revision"] == 2
+    return {"status": "pass", "rename_download_bytes": stats.downloaded_bytes, "stale_process_reload": "pass", "scope": "two isolated roots in one process"}
 
 
 def v2(root: Path) -> dict:

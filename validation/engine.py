@@ -210,6 +210,7 @@ class SyncEngine:
         return f"{stat.st_dev}:{stat.st_ino}"
 
     def scan(self) -> None:
+        self._load()
         disk = self._disk()
         previous = self.records
         previous_paths = {record.path: record for record in previous.values()}
