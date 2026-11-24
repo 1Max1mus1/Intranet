@@ -23,6 +23,9 @@
 @ref id=intranet-prd type=module state=draft path=prd.md
   Intranet 首版限定两台个人 Windows 电脑和一组目录，提供自动双向同步、冲突副本、历史恢复和受信任网络下的安全直连。
 
+@ref id=intranet-resume-hotspot-v3 type=runbook state=draft path=prompts/resume-hotspot-v3.md
+  新一轮 128 MiB 热点断网续传的双端指令，要求显式 resumed_bytes 和最终哈希验证。
+
 @ref id=intranet-roadmap type=runbook state=draft path=roadmap.md
   Intranet 先验证同步引擎并落地产品，第三阶段再通过 Tailscale 提供无需持续同步的按需远程文件传输助手。
 
