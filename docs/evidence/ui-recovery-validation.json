@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-11-26",
+  "version": "0.2.2",
+  "red_reproduction": [
+    "network display did not refresh",
+    "pairing state missing",
+    "notification rate limiting missing",
+    "network subprocesses could create visible consoles",
+    "network checks repeated without caching"
+  ],
+  "fixed": {
+    "hidden_subprocess_flags": "pass",
+    "network_query_cache": "pass",
+    "live_network_display": "pass",
+    "paired_endpoint_display": "pass",
+    "disconnect_pairing_preserves_files": "pass",
+    "notification_rate_limit": "pass",
+    "shutdown_polling_cleanup": "pass",
+    "product_smoke": "pass"
+  },
+  "installed_application": "updated and running",
+  "note": "Console flashing root cause was visible netsh/PowerShell child processes in the windowed application. CREATE_NO_WINDOW and two-second network caching address that path."
+}

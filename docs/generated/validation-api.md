@@ -39,6 +39,8 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `copy_endpointself`
   - `join_pairself`
   - `_pair_doneself, text: str`
+  - `refresh_pairing_stateself`
+  - `disconnect_pairingself`
   - `start_serviceself`
   - `toggle_pauseself`
   - `open_folderself`
@@ -68,6 +70,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `identity_dirself`
   - `peer_certificateself`
   - `registryself`
+- `run_hiddencommand: list[str]`
 - `network_id`
 - `ipv4_summary`
 - `primary_ipv4`
@@ -176,6 +179,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `__init__self, store: ConfigStore, config: AppConfig`
   - `emitself, kind: str, **values`
   - `startself`
+  - `_current_networkself`
   - `_allowedself`
   - `emit_throttledself, kind: str, text: str`
   - `_broadcastself`
@@ -380,3 +384,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `_saveself, offset: int, total_size: int, sha256: str`
   - `_chunkself, offset: int, length: int`
   - `downloadself, chunk_size: int=1024 * 1024, interrupt_at: int | None=None, before_replace=None, after_replace=None`
+
+## `validation/ui_state_smoke.py`
+
+- `main`

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+import time
 from collections.abc import Callable
 
 import pystray
@@ -10,6 +11,7 @@ from PIL import Image, ImageDraw
 class TrayController:
     def __init__(self, on_show: Callable, on_pause: Callable, on_open: Callable, on_exit: Callable):
         self.paused = False
+        self.last_notification = 0.0
         image = Image.new("RGB", (64, 64), "#1769aa")
         draw = ImageDraw.Draw(image)
         draw.rectangle((16, 12, 48, 52), fill="white")
@@ -38,6 +40,10 @@ class TrayController:
         self.icon.title = f"Intranet\n{text}"
 
     def notify(self, text: str) -> None:
+        now = time.monotonic()
+        if now - self.last_notification < 30:
+            return
+        self.last_notification = now
         self.icon.notify(text, "Intranet")
 
     def stop(self) -> None:

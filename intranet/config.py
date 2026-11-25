@@ -21,6 +21,7 @@ class AppConfig:
     tcp_port: int = 47630
     discovery_port: int = 47620
     static_peers: list[str] = field(default_factory=list)
+    peer_address: str = ""
     trusted_networks: list[str] = field(default_factory=list)
     exclusions: list[str] = field(default_factory=list)
     history_days: int = 30
@@ -71,9 +72,13 @@ class ConfigStore:
         return PairingRegistry(self.data_dir / "paired.json")
 
 
+def run_hidden(command: list[str]) -> subprocess.CompletedProcess:
+    return subprocess.run(command, capture_output=True, text=True, errors="replace", timeout=8, creationflags=subprocess.CREATE_NO_WINDOW)
+
+
 def network_id() -> str:
     try:
-        result = subprocess.run(["netsh", "wlan", "show", "interfaces"], capture_output=True, text=True, errors="replace", timeout=5)
+        result = run_hidden(["netsh", "wlan", "show", "interfaces"])
         for line in result.stdout.splitlines():
             match = re.match(r"^\s*SSID\s*:\s*(.+?)\s*$", line)
             if match:
@@ -90,7 +95,7 @@ def ipv4_summary() -> dict:
         "@{N='Prefix';E={$_.IPv4Address.PrefixLength}},@{N='Gateway';E={$_.IPv4DefaultGateway.NextHop}} | ConvertTo-Json -Compress"
     )
     try:
-        result = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True, errors="replace", timeout=8)
+        result = run_hidden(["powershell", "-NoProfile", "-Command", script])
         value = json.loads(result.stdout) if result.stdout.strip() else []
         if isinstance(value, dict):
             value = [value]
@@ -101,9 +106,14 @@ def ipv4_summary() -> dict:
 
 def primary_ipv4() -> str:
     interfaces = ipv4_summary()["interfaces"]
-    if interfaces:
-        return str(interfaces[0]["IPv4"])
-    return "127.0.0.1"
+    for item in interfaces:
+        if "WLAN" in str(item.get("InterfaceAlias", "")):
+            return str(item["IPv4"])
+    virtual = ("Tailscale", "Meta", "VirtualBox", "WSL", "Hyper-V", "TAP", "Bluetooth")
+    for item in interfaces:
+        if not any(name.lower() in str(item.get("InterfaceAlias", "")).lower() for name in virtual):
+            return str(item["IPv4"])
+    return str(interfaces[0]["IPv4"]) if interfaces else "127.0.0.1"
 
 
 def broadcast_for(address: str, prefix: int) -> str:

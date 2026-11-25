@@ -20,6 +20,7 @@ class IntranetApp:
         self.store = store or ConfigStore()
         self.config = self.store.load()
         self.service: IntranetService | None = None
+        self.alive = True
         self.root.title("Intranet")
         self.root.geometry("1100x760")
         self.root.minsize(960, 680)
@@ -32,11 +33,13 @@ class IntranetApp:
         self.peer_address = tk.StringVar()
         self.pair_code = tk.StringVar()
         self.local_endpoint = tk.StringVar(value=f"本机地址：{primary_ipv4()}:{self.config.tcp_port}")
+        self.pairing_state = tk.StringVar()
         self.autostart_enabled = tk.BooleanVar(value=self.config.autostart)
         self.exclusions = tk.StringVar(value=", ".join(self.config.exclusions))
         self.static_peers = tk.StringVar(value=", ".join(self.config.static_peers))
         self.history_days = tk.IntVar(value=self.config.history_days)
         self.history_gb = tk.DoubleVar(value=self.config.history_bytes / 1024**3)
+        self.last_network_ui = 0.0
         self.pages: dict[str, ttk.Frame] = {}
         self.nav_buttons: dict[str, ttk.Button] = {}
         self._build()
@@ -166,6 +169,11 @@ class IntranetApp:
         ttk.Button(join, text="完成配对", style="Accent.TButton", command=self.join_pair).grid(row=3, column=1, sticky=tk.W, pady=(10, 0))
         self.pair_status = tk.StringVar(value="两台电脑只需配对一次")
         ttk.Label(page, textvariable=self.pair_status, style="Status.TLabel", wraplength=650).pack(anchor=tk.W, pady=8)
+        paired = self._card(page)
+        ttk.Label(paired, textvariable=self.pairing_state, style="Card.TLabel").pack(side=tk.LEFT)
+        self.disconnect_button = ttk.Button(paired, text="断开配对", style="Secondary.TButton", command=self.disconnect_pairing)
+        self.disconnect_button.pack(side=tk.RIGHT)
+        self.refresh_pairing_state()
 
     def _build_history(self, page: ttk.Frame) -> None:
         actions = ttk.Frame(page)
@@ -270,8 +278,32 @@ class IntranetApp:
             if text == "配对成功" or text.startswith("已与"):
                 self.config.setup_complete = True
                 self.store.save(self.config)
+                self.refresh_pairing_state()
                 self.start_service()
         self.root.after(0, complete)
+
+    def refresh_pairing_state(self) -> None:
+        if self.store.peer_certificate.exists():
+            address = self.config.peer_address or "地址未记录"
+            self.pairing_state.set(f"已配对：{address}")
+            self.disconnect_button.configure(state=tk.NORMAL)
+        else:
+            self.pairing_state.set("尚未配对")
+            self.disconnect_button.configure(state=tk.DISABLED)
+
+    def disconnect_pairing(self) -> None:
+        if not messagebox.askyesno("断开配对", "断开后两台电脑将停止同步。已同步文件和历史记录会保留，是否继续？"):
+            return
+        if self.service:
+            self.service.stop()
+            self.service = None
+        self.store.peer_certificate.unlink(missing_ok=True)
+        (self.store.data_dir / "paired.json").unlink(missing_ok=True)
+        self.config.setup_complete = False
+        self.config.peer_address = ""
+        self.store.save(self.config)
+        self.refresh_pairing_state()
+        self.status.set("配对已断开，文件已保留")
 
     def start_service(self) -> None:
         if self.service and self.service.running:
@@ -297,6 +329,13 @@ class IntranetApp:
             os.startfile(self.folder.get())
 
     def _poll(self) -> None:
+        if not self.alive:
+            return
+        now = time.monotonic()
+        if now - self.last_network_ui > 2:
+            current = self.service.current_network if self.service else network_id()
+            self.network.set(f"当前网络：{current}")
+            self.last_network_ui = now
         if self.service:
             while True:
                 try:
@@ -330,7 +369,7 @@ class IntranetApp:
                 if kind in ("status", "network", "retry", "error", "discovered"):
                     self._append_log(event)
             self.tray.set_status(self.status.get())
-        if self.root.winfo_exists():
+        if self.alive and self.root.winfo_exists():
             self.root.after(500, self._poll)
 
     def _append_log(self, event: dict) -> None:
@@ -366,6 +405,7 @@ class IntranetApp:
         self.root.after(0, lambda: (self.root.deiconify(), self.root.lift()))
 
     def shutdown(self) -> None:
+        self.alive = False
         if self.service:
             self.service.stop()
         self.tray.stop()

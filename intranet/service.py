@@ -119,6 +119,8 @@ class IntranetService:
         self.last_scan = 0.0
         self.last_sync = ""
         self.last_cleanup = 0.0
+        self.last_network_check = 0.0
+        self.current_network = "offline"
 
     def emit(self, kind: str, **values) -> None:
         self.events.put({"type": kind, "timestamp": time.time(), **values})
@@ -137,8 +139,15 @@ class IntranetService:
             self.emit("history_cleanup", text=f"已清理 {removed} 个历史文件", removed=removed)
         self.emit("status", text="服务已启动")
 
+    def _current_network(self) -> str:
+        now = time.monotonic()
+        if now - self.last_network_check > 2:
+            self.current_network = network_id()
+            self.last_network_check = now
+        return self.current_network
+
     def _allowed(self) -> bool:
-        current = network_id()
+        current = self._current_network()
         allowed = current in self.config.trusted_networks
         if not allowed:
             self.emit_throttled("network", f"当前网络未受信任：{current}")

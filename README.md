@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white" alt="Windows 10/11">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/TLS-1.2%2F1.3-007AFF" alt="TLS 1.2/1.3">
-  <img src="https://img.shields.io/badge/Version-0.2.1-34C759" alt="Version 0.2.1">
+  <img src="https://img.shields.io/badge/Version-0.2.2-34C759" alt="Version 0.2.2">
 </p>
 
 <p align="center">

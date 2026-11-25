@@ -60,6 +60,7 @@ class PairingManager:
                         raise PermissionError("配对认证失败")
                     registry.pair(code, peer_certificate)
                     self.store.peer_certificate.write_bytes(peer_certificate)
+                    self.config.peer_address = f"{address[0]}:{self.config.tcp_port}"
                     certificate = self.certificate.read_bytes()
                     response_auth = pair_auth(code, "server", nonce, peer_certificate.decode("utf-8"), certificate.decode("utf-8"))
                     send_json(connection, {"type": "paired", "certificate": certificate.decode("utf-8"), "auth": response_auth})
@@ -85,6 +86,7 @@ class PairingManager:
                     raise PermissionError("对端配对认证失败")
             self.store.registry.register(peer_certificate)
             self.store.peer_certificate.write_bytes(peer_certificate)
+            self.config.peer_address = f"{host}:{port}"
             on_done("配对成功")
         except Exception as exc:
             on_done(f"配对失败：{exc}")
