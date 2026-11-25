@@ -7,6 +7,9 @@
     "b_to_a": "pass",
     "pause_resume": "pass",
     "gui_and_tray_lifecycle": "pass",
+    "text_a_to_b": "pass",
+    "text_b_to_a": "pass",
+    "local_endpoint_and_transfer_page": "pass",
     "scope": "two isolated product configurations over real local TLS"
   },
   "packaged_application": {

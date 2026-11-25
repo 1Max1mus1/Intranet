@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white" alt="Windows 10/11">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/TLS-1.2%2F1.3-007AFF" alt="TLS 1.2/1.3">
-  <img src="https://img.shields.io/badge/Version-0.2.0-34C759" alt="Version 0.2.0">
+  <img src="https://img.shields.io/badge/Version-0.2.1-34C759" alt="Version 0.2.1">
 </p>
 
 <p align="center">
@@ -36,6 +36,7 @@
 | 历史恢复 | 被覆盖或删除的文件可以恢复，默认保留 30 天、最多 20 GB |
 | 自动发现 | 支持子网定向广播；广播不可用时使用静态 `IP:端口` |
 | 安全连接 | 一次性配对码、设备证书、双向 TLS 和受信任网络 |
+| 即时文字 | 多行文字通过现有双向 TLS 即时收发，接收记录可复制且不写入普通日志 |
 | 后台体验 | 自动同步、暂停与恢复、托盘通知、Windows 登录自启动 |
 | 界面与安装 | 苹果简约风、主界面、历史恢复、当前用户安装与卸载 |
 
@@ -99,6 +100,14 @@ python main.py --background
 
 <p align="center">
   <img src="docs/images/intranet-pairing.png" alt="Intranet 设备配对界面" width="86%">
+</p>
+
+## 即时文字传输
+
+在“即时传输”页面粘贴文字并点击“立即发送”，即可通过已配对设备的双向 TLS 通道发送到另一台电脑。配对页会同时显示本机 `IP:端口`，并支持一键复制。
+
+<p align="center">
+  <img src="docs/images/intranet-transfer.png" alt="Intranet 即时文字传输界面" width="86%">
 </p>
 
 ## 数据与安全规则

@@ -99,6 +99,13 @@ def ipv4_summary() -> dict:
         return {"interfaces": []}
 
 
+def primary_ipv4() -> str:
+    interfaces = ipv4_summary()["interfaces"]
+    if interfaces:
+        return str(interfaces[0]["IPv4"])
+    return "127.0.0.1"
+
+
 def broadcast_for(address: str, prefix: int) -> str:
     interface = ipaddress.IPv4Interface(f"{address}/{prefix}")
     return str(interface.network.broadcast_address)

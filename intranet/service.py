@@ -168,6 +168,7 @@ class IntranetService:
             self.store.peer_certificate,
             self.registry,
             port=self.config.tcp_port,
+            on_text=lambda text: self.emit("text_received", text=text),
         )
         self.server.start()
         self.discovery = DiscoveryService(
@@ -245,6 +246,29 @@ class IntranetService:
                 self.emit_throttled("error", str(exc))
                 self._stop_io()
             self.stop_event.wait(0.2)
+
+    def send_text(self, text: str) -> None:
+        if not text.strip():
+            raise ValueError("请输入要传输的文字")
+        if self.paused or not self._allowed():
+            raise ValueError("请先恢复同步并连接受信任网络")
+        threading.Thread(target=self._send_text, args=(text,), daemon=True).start()
+
+    def _send_text(self, text: str) -> None:
+        peers = self._peers()
+        if not peers:
+            self.emit("error", text="尚未发现可传输文字的设备")
+            return
+        peer = peers[0]
+        try:
+            remote = RemotePeer(peer.host, peer.port, self.key, self.certificate, self.store.peer_certificate)
+            try:
+                remote.send_text(text)
+            finally:
+                remote.close()
+            self.emit("text_sent", text=text)
+        except (OSError, ValueError, ConnectionError) as exc:
+            self.emit("error", text=f"文字发送失败：{exc}")
 
     def toggle_pause(self) -> None:
         self.paused = not self.paused

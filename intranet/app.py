@@ -8,7 +8,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, scrolledtext, ttk
 
 from . import autostart, theme
-from .config import AppConfig, ConfigStore, network_id
+from .config import AppConfig, ConfigStore, network_id, primary_ipv4
 from .pairing import PairingManager
 from .service import IntranetService
 from .tray import TrayController
@@ -31,6 +31,7 @@ class IntranetApp:
         self.device_name = tk.StringVar(value=self.config.device_name)
         self.peer_address = tk.StringVar()
         self.pair_code = tk.StringVar()
+        self.local_endpoint = tk.StringVar(value=f"本机地址：{primary_ipv4()}:{self.config.tcp_port}")
         self.autostart_enabled = tk.BooleanVar(value=self.config.autostart)
         self.exclusions = tk.StringVar(value=", ".join(self.config.exclusions))
         self.static_peers = tk.StringVar(value=", ".join(self.config.static_peers))
@@ -69,7 +70,7 @@ class IntranetApp:
         sidebar.pack_propagate(False)
         ttk.Label(sidebar, text="Intranet", font=("Segoe UI", 20, "bold")).pack(anchor=tk.W, padx=10, pady=(0, 2))
         ttk.Label(sidebar, text="文件，始终在身边", style="Muted.TLabel").pack(anchor=tk.W, padx=10, pady=(0, 28))
-        for key, label in (("sync", "同步"), ("pairing", "设备配对"), ("history", "历史恢复"), ("settings", "设置")):
+        for key, label in (("sync", "同步"), ("transfer", "即时传输"), ("pairing", "设备配对"), ("history", "历史恢复"), ("settings", "设置")):
             button = ttk.Button(sidebar, text=label, style="Nav.TButton", command=lambda k=key: self.show_page(k))
             button.pack(fill=tk.X, pady=2)
             self.nav_buttons[key] = button
@@ -77,6 +78,7 @@ class IntranetApp:
         self.content = ttk.Frame(container, padding=(24, 22, 10, 10))
         self.content.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self._build_sync(self._page("sync", "同步", "在两台电脑之间，安静地保持文件一致。"))
+        self._build_transfer(self._page("transfer", "即时传输", "复制一段文字，立即送到另一台电脑。"))
         self._build_pairing(self._page("pairing", "设备配对", "确认一次身份，之后自动安全连接。"))
         self._build_history(self._page("history", "历史恢复", "被删除或覆盖的文件，可以在这里找回。"))
         self._build_settings(self._page("settings", "设置", "让同步按照你的使用习惯运行。"))
@@ -111,11 +113,50 @@ class IntranetApp:
         self.log = scrolledtext.ScrolledText(log_card, height=15, state=tk.DISABLED, wrap=tk.WORD, bd=0, bg="#FFFFFF", fg="#1D1D1F", font=("Microsoft YaHei UI", 9))
         self.log.pack(fill=tk.BOTH, expand=True)
 
+    def _build_transfer(self, page: ttk.Frame) -> None:
+        composer = self._card(page)
+        ttk.Label(composer, text="发送文字", style="Section.TLabel").pack(anchor=tk.W, pady=(0, 8))
+        self.text_composer = tk.Text(composer, height=5, wrap=tk.WORD, bd=0, bg="#F5F5F7", fg="#1D1D1F", font=("Microsoft YaHei UI", 10))
+        self.text_composer.pack(fill=tk.X, pady=(0, 10))
+        actions = ttk.Frame(composer, style="Card.TFrame")
+        actions.pack(fill=tk.X)
+        ttk.Button(actions, text="立即发送", style="Accent.TButton", command=self.send_text).pack(side=tk.LEFT)
+        ttk.Button(actions, text="清空", style="Secondary.TButton", command=lambda: self.text_composer.delete("1.0", tk.END)).pack(side=tk.LEFT, padx=8)
+        conversation = self._card(page)
+        ttk.Label(conversation, text="传输记录", style="Section.TLabel").pack(anchor=tk.W, pady=(0, 8))
+        self.conversation = tk.Text(conversation, height=10, wrap=tk.WORD, state=tk.DISABLED, bd=0, bg="#FFFFFF", fg="#1D1D1F", font=("Microsoft YaHei UI", 10))
+        self.conversation.pack(fill=tk.BOTH, expand=True)
+        ttk.Button(conversation, text="复制全部记录", style="Secondary.TButton", command=self.copy_conversation).pack(anchor=tk.W, pady=(8, 0))
+
+    def _append_message(self, role: str, text: str) -> None:
+        stamp = time.strftime("%H:%M:%S")
+        self.conversation.configure(state=tk.NORMAL)
+        self.conversation.insert(tk.END, f"{role} · {stamp}\n{text}\n\n")
+        self.conversation.configure(state=tk.DISABLED)
+        self.conversation.see(tk.END)
+
+    def send_text(self) -> None:
+        text = self.text_composer.get("1.0", "end-1c")
+        try:
+            if not self.service:
+                raise ValueError("请先启动同步并完成设备发现")
+            self.service.send_text(text)
+            self.status.set("正在发送文字…")
+        except ValueError as exc:
+            messagebox.showerror("无法发送", str(exc))
+
+    def copy_conversation(self) -> None:
+        self.root.clipboard_clear()
+        self.root.clipboard_append(self.conversation.get("1.0", "end-1c"))
+        self.status.set("传输记录已复制")
+
     def _build_pairing(self, page: ttk.Frame) -> None:
         host = self._card(page)
         ttk.Label(host, text="在这台电脑上生成配对码", style="Section.TLabel").grid(row=0, column=0, sticky=tk.W, pady=(0, 4))
         ttk.Label(host, text="另一台电脑输入后，即可完成配对。", style="CardMuted.TLabel").grid(row=1, column=0, sticky=tk.W, pady=(0, 10))
-        ttk.Button(host, text="生成配对码并等待", style="Accent.TButton", command=self.host_pair).grid(row=2, column=0, sticky=tk.W)
+        ttk.Label(host, textvariable=self.local_endpoint, style="CardMuted.TLabel").grid(row=2, column=0, sticky=tk.W, pady=(0, 10))
+        ttk.Button(host, text="复制地址", style="Secondary.TButton", command=self.copy_endpoint).grid(row=2, column=1, sticky=tk.E)
+        ttk.Button(host, text="生成配对码并等待", style="Accent.TButton", command=self.host_pair).grid(row=3, column=0, sticky=tk.W)
         join = self._card(page)
         ttk.Label(join, text="使用另一台电脑的配对码", style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
         ttk.Label(join, text="对端 IP:端口", style="Card.TLabel").grid(row=1, column=0, sticky=tk.W, pady=6)
@@ -202,7 +243,14 @@ class IntranetApp:
             messagebox.showerror("无法配对", str(exc))
 
     def _pair_code_ready(self, code: str, port: int) -> None:
-        self.root.after(0, lambda: self.pair_status.set(f"配对码：{code}　端口：{port}（5 分钟内有效）"))
+        endpoint = f"{primary_ipv4()}:{port}"
+        self.local_endpoint.set(f"本机地址：{endpoint}")
+        self.root.after(0, lambda: self.pair_status.set(f"本机地址：{endpoint}　配对码：{code}（5 分钟内有效）"))
+
+    def copy_endpoint(self) -> None:
+        self.root.clipboard_clear()
+        self.root.clipboard_append(self.local_endpoint.get().replace("本机地址：", ""))
+        self.pair_status.set("本机地址已复制")
 
     def join_pair(self) -> None:
         if not self.peer_address.get().strip() or not self.pair_code.get().strip():
@@ -268,6 +316,14 @@ class IntranetApp:
                     else:
                         self.status.set(f"最近同步：{time.strftime('%H:%M:%S', time.localtime(event['timestamp']))}")
                     self._append_log(event)
+                elif kind == "text_received":
+                    self._append_message("对方", event["text"])
+                    self.status.set("收到即时文字")
+                    self.tray.notify("收到即时文字")
+                elif kind == "text_sent":
+                    self._append_message("我", event["text"])
+                    self.text_composer.delete("1.0", tk.END)
+                    self.status.set("文字已送达")
                 elif kind == "history_cleanup":
                     self.status.set(event["text"])
                     self.tray.notify(event["text"])

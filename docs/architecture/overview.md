@@ -9,7 +9,7 @@
 
 - `intranet/engine.py`：稳定文件身份、版本、冲突、历史、排除、原子替换和断点文件。
 - `intranet/security.py`：配对注册、证书、网络策略和 TLS 上下文。
-- `intranet/network.py`：清单与内容协议、偏移续传、双向证书校验。
+- `intranet/network.py`：清单与内容协议、偏移续传、即时文字消息、双向证书校验。
 - `intranet/pairing.py`：一次性配对码和证书交换。
 - `intranet/config.py`：用户配置、当前网络与定向广播计算。
 - `intranet/service.py`：受信任网络门禁、UDP 发现、静态地址、后台同步、暂停和历史清理。

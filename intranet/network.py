@@ -84,6 +84,14 @@ class RemotePeer:
         self.busy = True
         return SocketReader(self, current.size - offset), current
 
+    def send_text(self, text: str) -> None:
+        if len(text.encode("utf-8")) > 1_000_000:
+            raise ValueError("文字消息不能超过 1 MB")
+        send_json(self.connection, {"type": "text", "text": text})
+        response = receive_json(self.connection)
+        if response.get("type") != "text_result":
+            raise ValueError(response.get("message", "文字发送失败"))
+
     def close(self) -> None:
         self.connection.close()
 
@@ -98,9 +106,11 @@ class NodeServer:
         registry: PairingRegistry,
         host: str = "0.0.0.0",
         port: int = 47630,
+        on_text=None,
     ):
         self.engine = engine
         self.registry = registry
+        self.on_text = on_text
         self.context = server_context(key_path, certificate_path, peer_certificate)
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -134,6 +144,13 @@ class NodeServer:
                     request = receive_json(connection)
                     if request.get("type") == "manifest":
                         send_json(connection, {"type": "manifest", "records": self.engine.manifest()})
+                    elif request.get("type") == "text":
+                        text = request.get("text")
+                        if not isinstance(text, str) or len(text.encode("utf-8")) > 1_000_000:
+                            raise ValueError("无效文字消息")
+                        if self.on_text:
+                            self.on_text(text)
+                        send_json(connection, {"type": "text_result", "status": "ok"})
                     elif request.get("type") == "open":
                         requested = Record.from_wire(request["record"])
                         offset = int(request.get("offset", 0))

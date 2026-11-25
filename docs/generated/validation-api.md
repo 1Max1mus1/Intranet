@@ -23,6 +23,10 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `_buildself`
   - `show_pageself, key: str`
   - `_build_syncself, page: ttk.Frame`
+  - `_build_transferself, page: ttk.Frame`
+  - `_append_messageself, role: str, text: str`
+  - `send_textself`
+  - `copy_conversationself`
   - `_build_pairingself, page: ttk.Frame`
   - `_build_historyself, page: ttk.Frame`
   - `_build_settingsself, page: ttk.Frame`
@@ -32,6 +36,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `trust_networkself`
   - `host_pairself`
   - `_pair_code_readyself, code: str, port: int`
+  - `copy_endpointself`
   - `join_pairself`
   - `_pair_doneself, text: str`
   - `start_serviceself`
@@ -65,6 +70,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `registryself`
 - `network_id`
 - `ipv4_summary`
+- `primary_ipv4`
 - `broadcast_foraddress: str, prefix: int`
 
 ## `intranet/engine.py`
@@ -117,9 +123,10 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `__init__self, host: str, port: int, key_path: Path, certificate_path: Path, peer_certificate: Path, chunk_delay: float=0`
   - `manifestself`
   - `open_recordself, requested: Record, offset: int=0`
+  - `send_textself, text: str`
   - `closeself`
 - class `NodeServer`
-  - `__init__self, engine: SyncEngine, key_path: Path, certificate_path: Path, peer_certificate: Path, registry: PairingRegistry, host: str='0.0.0.0', port: int=47630`
+  - `__init__self, engine: SyncEngine, key_path: Path, certificate_path: Path, peer_certificate: Path, registry: PairingRegistry, host: str='0.0.0.0', port: int=47630, on_text=None`
   - `startself`
   - `_accept_loopself`
   - `_handleself, raw: socket.socket`
@@ -177,6 +184,8 @@ Do not edit by hand; regenerate from product and validation Python sources.
   - `_peersself`
   - `_syncself, peer: DiscoveredPeer`
   - `_loopself`
+  - `send_textself, text: str`
+  - `_send_textself, text: str`
   - `toggle_pauseself`
   - `stopself`
   - `history_entriesself`
@@ -319,6 +328,7 @@ Do not edit by hand; regenerate from product and validation Python sources.
 ## `validation/product_smoke.py`
 
 - `main`
+- `wait_textservice: IntranetService, timeout: float=15`
 - `wait_forpath: Path, timeout: float=15`
 
 ## `validation/run_checks.py`
